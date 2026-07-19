@@ -1,0 +1,102 @@
+@extends('layout.app')
+
+@section('content')
+<div class="max-w-4xl mx-auto">
+    <div class="mb-6 flex items-center space-x-3">
+        <a href="{{ route('barang.index') }}" class="text-gray-500 hover:text-blue-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        </a>
+        <h1 class="text-2xl font-bold text-gray-800">Tambah Barang</h1>
+    </div>
+
+    <div class="bg-white p-8 rounded-lg shadow-md border border-gray-100">
+        @if ($errors->any())
+            <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-6">
+                <ul class="list-disc list-inside text-sm">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form action="{{ route('barang.store') }}" method="POST">
+            @csrf
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label for="id_barang" class="block text-sm font-semibold text-gray-700 mb-2">ID Barang</label>
+                    <input type="text" name="id_barang" id="id_barang" value="{{ old('id_barang') }}" placeholder="Otomatis terisi jika kosong" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                </div>
+
+                <div>
+                    <label for="nama_barang" class="block text-sm font-semibold text-gray-700 mb-2">Nama Barang</label>
+                    <input type="text" name="nama_barang" id="nama_barang" value="{{ old('nama_barang') }}" required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                </div>
+
+                <div>
+                    <label for="id_kategori" class="block text-sm font-semibold text-gray-700 mb-2">Kategori</label>
+                    <select name="id_kategori" id="id_kategori" required onchange="generateId(this.value)" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                        <option value="" disabled selected>-- Pilih Kategori --</option>
+                        @foreach($kategoris as $kategori)
+                            <option value="{{ $kategori->id_kategori }}" {{ old('id_kategori') == $kategori->id_kategori ? 'selected' : '' }}>
+                                {{ $kategori->nama_kategori }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label for="id_satuan" class="block text-sm font-semibold text-gray-700 mb-2">Satuan</label>
+                    <select name="id_satuan" id="id_satuan" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                        <option value="" disabled selected>-- Pilih Satuan --</option>
+                        @foreach($satuans as $satuan)
+                            <option value="{{ $satuan->id_satuan }}" {{ old('id_satuan') == $satuan->id_satuan ? 'selected' : '' }}>
+                                {{ $satuan->nama_satuan }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                
+                <div class="md:col-span-2">
+                    <label for="harga" class="block text-sm font-semibold text-gray-700 mb-2">Harga Satuan (Rp)</label>
+                    <input type="number" name="harga" id="harga" value="{{ old('harga') }}" required min="0" step="1"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-4 border-t border-gray-100">
+                <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition duration-200">
+                    Simpan Barang
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function generateId(kategoriId) {
+    if(!kategoriId) return;
+    
+    var inputId = document.getElementById('id_barang');
+    var lastAuto = inputId.getAttribute('data-last-auto') || '';
+    
+    // Hanya isi jika kosong ATAU jika nilainya sama dengan auto-generate terakhir
+    // (artinya user belum mengetik/mengubah manual)
+    if(inputId.value !== '' && inputId.value !== lastAuto) return;
+
+    fetch('/barang/next-id/' + kategoriId)
+        .then(response => response.json())
+        .then(data => {
+            if(data.next_id) {
+                inputId.value = data.next_id;
+                inputId.placeholder = data.next_id;
+                inputId.setAttribute('data-last-auto', data.next_id);
+            }
+        })
+        .catch(error => console.error('Error fetching next ID:', error));
+}
+</script>
+@endsection

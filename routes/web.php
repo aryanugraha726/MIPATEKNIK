@@ -1,0 +1,105 @@
+<?php
+
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DivisiController;
+use App\Http\Controllers\KaryawanController;
+use App\Http\Controllers\KategoriBarangController;
+use App\Http\Controllers\ManagementController;
+use App\Http\Controllers\MasterDataController;
+use App\Http\Controllers\PPICController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SatuanController;
+use App\Http\Controllers\StockController;
+use App\Http\Controllers\SubprojectController;
+use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\TugasController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\VendorController;
+use Illuminate\Support\Facades\Route;
+
+// Auth Routes
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::middleware(['auth'])->group(function () {
+
+    // Dashboard Utama — Semua role bisa akses
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // =============================================
+    // MENU PPIC (role: ADMIN, PPIC)
+    // Dashboard PPIC, Project CRUD, Subproject CRUD, Tugas CRUD
+    // =============================================
+    Route::middleware('role:ADMIN,PPIC')->group(function () {
+        Route::resource('projects', ProjectController::class);
+        Route::resource('subprojects', SubprojectController::class)->except(['index']);
+        Route::resource('tugas', TugasController::class)->except(['index', 'show']);
+    });
+
+    // =============================================
+    // MENU PURCHASING (role: ADMIN, PURCHASING)
+    // Stock opname, transaksi masuk/keluar, riwayat
+    // =============================================
+    Route::middleware('role:ADMIN,PURCHASING')->group(function () {
+        Route::resource('barang', App\Http\Controllers\BarangController::class)->except(['show']);
+        Route::get('/stok', [StockController::class, 'index'])->name('stock.index');
+        Route::get('/stok/export', [StockController::class, 'export'])->name('stock.export');
+        Route::get('/barang/next-id/{id_kategori}', [App\Http\Controllers\BarangController::class, 'getNextId'])->name('barang.nextId');
+        Route::get('/transaksi/baru', [TransactionController::class, 'create'])->name('transaksi.create');
+        Route::post('/transaksi/baru', [TransactionController::class, 'store'])->name('transaksi.store');
+        Route::post('/transaksi/barang-ajax', [App\Http\Controllers\BarangController::class, 'storeAjax'])->name('barang.storeAjax');
+        Route::get('/transaksi/antrean', [TransactionController::class, 'pendingList'])->name('transaksi.antrean');
+        Route::get('/riwayat/masuk', [TransactionController::class, 'historyMasuk'])->name('transaksi.masuk');
+        Route::get('/riwayat/keluar', [TransactionController::class, 'historyKeluar'])->name('transaksi.keluar');
+    });
+
+    // =============================================
+    // MENU KARYAWAN (role: ADMIN, KARYAWAN)
+    // Gantt chart dari project yang mereka kerjakan
+    // =============================================
+    Route::middleware('role:ADMIN,KARYAWAN')->group(function () {
+        Route::get('/my-projects', [PPICController::class, 'myProjects'])->name('karyawan.projects');
+        Route::get('/my-projects/{id}/gantt', [PPICController::class, 'myGantt'])->name('karyawan.gantt');
+    });
+
+    // =============================================
+    // TOGGLE STATUS TUGAS (role: ADMIN, PPIC, KARYAWAN)
+    // =============================================
+    Route::middleware('role:ADMIN,PPIC,KARYAWAN')->group(function () {
+        Route::post('/tugas/{id}/toggle-status', [TugasController::class, 'toggleStatus'])->name('tugas.toggle-status');
+    });
+
+    // =============================================
+    // MENU DIREKTUR UTAMA (role: ADMIN, DIREKTUR UTAMA)
+    // Stock opname (read-only) dan daftar proyek (read-only)
+    // =============================================
+    Route::middleware('role:ADMIN,DIREKTUR UTAMA')->group(function () {
+        Route::get('/direktur/stok', [StockController::class, 'index'])->name('direktur.stock');
+    });
+
+    // Gantt Chart & Dashboard PPIC accessible by ADMIN, PPIC, DIREKTUR UTAMA
+    Route::middleware('role:ADMIN,PPIC,DIREKTUR UTAMA')->group(function () {
+        Route::get('/ppic/dashboard', [PPICController::class, 'index'])->name('ppic.index');
+        Route::get('/projects/{id}/gantt', [PPICController::class, 'gantt'])->name('ppic.gantt');
+    });
+
+    // =============================================
+    // MASTER DATA (role: ADMIN saja)
+    // =============================================
+    Route::middleware('role:ADMIN')->group(function () {
+        Route::get('/master-data', [MasterDataController::class, 'index'])->name('master-data.index');
+        Route::resource('divisi', DivisiController::class)->except(['show']);
+        Route::resource('karyawan', KaryawanController::class)->except(['show']);
+        Route::resource('management', ManagementController::class)->except(['show']);
+        Route::resource('vendor', VendorController::class)->except(['show']);
+        Route::resource('kategori', KategoriBarangController::class)->except(['show']);
+        Route::resource('satuan', SatuanController::class)->except(['show']);
+        Route::resource('role', RoleController::class)->except(['show']);
+        Route::resource('users', UserController::class);
+    });
+
+});
