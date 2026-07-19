@@ -119,7 +119,7 @@
                     </div>
                     <div>
                         <label class="block text-gray-700 font-semibold mb-2 text-sm">Nama Barang <span class="text-red-500">*</span></label>
-                        <input type="text" id="ajax_nama_barang" name="nama_barang" placeholder="Misal: Semen Tiga Roda" class="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                        <input type="text" id="ajax_nama_barang" name="nama_barang" placeholder="Nama barang" class="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
@@ -142,7 +142,7 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-semibold mb-2 text-sm">Harga Master (Rp) <span class="text-red-500">*</span></label>
+                        <label class="block text-gray-700 font-semibold mb-2 text-sm">Harga (Rp) <span class="text-red-500">*</span></label>
                         <input type="number" id="ajax_harga" name="harga" min="0" class="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
                     </div>
                 </div>
