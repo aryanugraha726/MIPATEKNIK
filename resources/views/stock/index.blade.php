@@ -17,9 +17,6 @@
         <div class="flex flex-col sm:flex-row justify-between items-center mb-6 border-b border-gray-100 pb-4">
             <div class="flex items-center space-x-3 mb-4 sm:mb-0">
                 <h1 class="text-2xl font-bold text-gray-800">Stock Opname</h1>
-                <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">
-                    Sistem MIPA TEKNIK
-                </span>
             </div>
             <div class="flex space-x-2">
                 <a href="{{ route('stock.export') }}" class="bg-blue-600 text-white font-bold py-2 px-4 rounded shadow hover:bg-blue-700 hover:shadow-lg transition duration-200">
