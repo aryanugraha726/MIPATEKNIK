@@ -40,20 +40,19 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $user->user_id }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $user->username }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $user->karyawan->nm_karyawan ?? '-' }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    @if(optional($user->role)->nama_role == 'ADMIN')
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
-                            ADMIN
-                        </span>
-                    @elseif(optional($user->role)->nama_role == 'MANAGEMENT')
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                            MANAGEMENT
-                        </span>
-                    @else
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                            {{ optional($user->role)->nama_role ?? 'USER' }}
-                        </span>
-                    @endif
+                <td class="px-6 py-4">
+                    @php $userRoles = $user->roles(); @endphp
+                    <div class="flex flex-wrap gap-1">
+                        @foreach($userRoles as $roleName)
+                            @if($roleName == 'ADMIN')
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">{{ $roleName }}</span>
+                            @elseif($roleName == 'KARYAWAN')
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">{{ $roleName }}</span>
+                            @else
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">{{ $roleName }}</span>
+                            @endif
+                        @endforeach
+                    </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <a href="{{ route('users.edit', $user->user_id) }}" class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>

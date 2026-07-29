@@ -44,18 +44,6 @@
                 </select>
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Role (Hak Akses)</label>
-                <select name="role_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-                    <option value="">-- Pilih Role --</option>
-                    @foreach($roles as $r)
-                        <option value="{{ $r->role_id }}" {{ (old('role_id', $user->role_id) == $r->role_id) ? 'selected' : '' }}>
-                            {{ $r->nama_role }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
             <hr class="border-gray-200">
 
             <div>

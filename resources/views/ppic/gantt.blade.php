@@ -99,7 +99,7 @@
         @else
             <div class="py-12 text-center text-gray-500">
                 <p class="mb-2">Proyek ini belum memiliki Subproject atau Tugas.</p>
-                <a href="{{ route('projects.show', $project->project_id) }}" class="text-blue-600 hover:underline">Tambahkan Subproject terlebih dahulu.</a>
+                <a href="{{ route('projects.show', $project->job_id) }}" class="text-blue-600 hover:underline">Tambahkan Subproject terlebih dahulu.</a>
             </div>
         @endif
     </div>

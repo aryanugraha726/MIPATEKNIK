@@ -18,7 +18,7 @@ class TransactionController extends Controller
     public function create()
     {
         $barangs = Barang::select('id_barang', 'nama_barang', 'harga')->get();
-        $projects = Project::select('project_id', 'nama_project')->get();
+        $projects = Project::select('job_id', 'nama_project')->get();
         $kategoris = KategoriBarang::all();
         $satuans = Satuan::all();
         return view('transaksi.create', compact('barangs', 'projects', 'kategoris', 'satuans'));
@@ -71,7 +71,14 @@ class TransactionController extends Controller
             }
 
         } else {
-            $request->validate(['project_id' => 'required|exists:project,project_id']);
+            $request->validate(['job_id' => 'required|exists:project,job_id']);
+            
+            // Opsi 1: Validasi Hard Limit
+            // Mengecek apakah stok mencukupi
+            $sisaStock = $stockAktual ? $stockAktual->sisa_stock : 0;
+            if ($request->jumlah > $sisaStock) {
+                return redirect()->back()->withInput()->withErrors(['jumlah' => "Jumlah barang keluar melebihi stok yang tersedia (Sisa Stok: $sisaStock)."]);
+            }
             
             $newId = BarangKeluar::max('id_keluar') + 1;
 
@@ -79,7 +86,7 @@ class TransactionController extends Controller
                 'id_keluar'     => $newId ?: 1,
                 'id_barang'     => $request->id_barang,
                 'tgl_keluar'    => $request->tanggal,
-                'project_id'    => $request->project_id,
+                'job_id'    => $request->job_id,
                 'jumlah_keluar' => $request->jumlah,
                 'ket_keluar'    => $request->keterangan,
             ]);
@@ -127,13 +134,24 @@ class TransactionController extends Controller
     }
 
     // Menampilkan Riwayat Barang Keluar
-    public function historyKeluar()
+    public function historyKeluar(Request $request)
     {
-        $keluar = BarangKeluar::with(['barang', 'project'])
-            ->orderBy('tgl_keluar', 'desc')
-            ->get();
+        $query = BarangKeluar::with(['barang', 'project']);
 
-        return view('transaksi.keluar', compact('keluar'));
+        if ($request->filled('job_id')) {
+            $query->where('job_id', $request->job_id);
+        }
+
+        if ($request->filled('nama_barang')) {
+            $query->whereHas('barang', function ($q) use ($request) {
+                $q->where('nama_barang', 'like', '%' . $request->nama_barang . '%');
+            });
+        }
+
+        $keluar = $query->orderBy('tgl_keluar', 'desc')->get();
+        $projects = Project::select('job_id', 'nama_project')->get();
+
+        return view('transaksi.keluar', compact('keluar', 'projects'));
     }
 
     // Menampilkan Antrean Barang Masuk (Pending)

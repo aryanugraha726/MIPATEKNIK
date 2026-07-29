@@ -4,7 +4,7 @@
 <div class="max-w-4xl mx-auto">
     <div class="mb-6 flex items-center justify-between">
         <h1 class="text-2xl font-bold">Tambah Subproject</h1>
-        <a href="{{ route('projects.show', $project->project_id) }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali ke Project</a>
+        <a href="{{ route('projects.show', $project->job_id) }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali ke Project</a>
     </div>
 
     @if ($errors->any())
@@ -25,11 +25,11 @@
 
         <form action="{{ route('subprojects.store') }}" method="POST">
             @csrf
-            <input type="hidden" name="project_id" value="{{ $project->project_id }}">
+            <input type="hidden" name="job_id" value="{{ $project->job_id }}">
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">ID Subproject (Job ID)</label>
                 <input type="text" name="subproject_id" value="{{ old('subproject_id', $nextId) }}" class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
-                <p class="text-xs text-gray-500 mt-1">ID otomatis digenerate (Project ID + 2 digit urutan), namun dapat Anda ubah manual.</p>
+                <p class="text-xs text-gray-500 mt-1">ID otomatis digenerate (Job ID + 2 digit urutan), namun dapat Anda ubah manual.</p>
             </div>
 
             <div class="mb-4">
@@ -43,8 +43,11 @@
                     <input type="date" name="start_subproject" value="{{ old('start_subproject') }}" class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
                 </div>
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Target Selesai</label>
-                    <input type="date" name="target_subproject" value="{{ old('target_subproject') }}" class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Durasi Pengerjaan (Hari)</label>
+                    <div class="flex items-center">
+                        <input type="number" name="durasi_hari" min="1" value="{{ old('durasi_hari', 1) }}" class="shadow-sm appearance-none border rounded-l w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
+                        <span class="bg-gray-100 border border-l-0 border-gray-300 rounded-r py-2 px-4 text-gray-600">Hari</span>
+                    </div>
                 </div>
             </div>
 

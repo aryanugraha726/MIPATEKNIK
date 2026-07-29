@@ -18,11 +18,11 @@ class SubprojectController extends Controller
 
     public function create(Request $request)
     {
-        $project_id = $request->query('project_id');
-        $project = Project::findOrFail($project_id);
+        $job_id = $request->query('job_id');
+        $project = Project::findOrFail($job_id);
         
-        $projectCode = str_pad($project_id, 5, '0', STR_PAD_LEFT);
-        $lastSub = Subproject::where('project_id', $project_id)->orderBy('subproject_id', 'desc')->first();
+        $projectCode = str_pad($job_id, 5, '0', STR_PAD_LEFT);
+        $lastSub = Subproject::where('job_id', $job_id)->orderBy('subproject_id', 'desc')->first();
         if ($lastSub) {
             $lastSeq = (int) substr($lastSub->subproject_id, -2);
             $nextSeq = $lastSeq + 1;
@@ -41,25 +41,25 @@ class SubprojectController extends Controller
     {
         $request->validate([
             'subproject_id' => 'required|string|max:7|unique:subproject,subproject_id',
-            'project_id' => 'required|exists:project,project_id',
+            'job_id' => 'required|exists:project,job_id',
             'nama_subproject' => 'required|string|max:50',
             'start_subproject' => 'required|date',
-            'target_subproject' => 'required|date',
+            'durasi_hari' => 'required|integer|min:1',
             'id_karyawan' => 'required|exists:karyawan,id_karyawan',
             'management_id' => 'required|exists:management,management_id',
         ]);
 
         Subproject::create([
             'subproject_id' => $request->subproject_id,
-            'project_id' => $request->project_id,
+            'job_id' => $request->job_id,
             'nama_subproject' => $request->nama_subproject,
             'start_subproject' => $request->start_subproject,
-            'target_subproject' => $request->target_subproject,
+            'target_subproject' => date('Y-m-d', strtotime($request->start_subproject . ' + ' . $request->durasi_hari . ' days')),
             'id_karyawan' => $request->id_karyawan,
             'management_id' => $request->management_id,
         ]);
 
-        return redirect()->route('projects.show', $request->project_id)->with('success', 'Subproject berhasil ditambahkan');
+        return redirect()->route('projects.show', $request->job_id)->with('success', 'Subproject berhasil ditambahkan');
     }
 
     public function show($id)
@@ -71,7 +71,7 @@ class SubprojectController extends Controller
     public function edit($id)
     {
         $subproject = Subproject::findOrFail($id);
-        $project = Project::findOrFail($subproject->project_id);
+        $project = Project::findOrFail($subproject->job_id);
         $karyawans = Karyawan::select('id_karyawan', 'nm_karyawan')->get();
         $managements = Management::with(['karyawan:id_karyawan,nm_karyawan', 'divisi:id_divisi,nama_divisi'])
             ->select('management_id', 'id_karyawan', 'id_divisi')->get();
@@ -83,7 +83,7 @@ class SubprojectController extends Controller
         $request->validate([
             'nama_subproject' => 'required|string|max:50',
             'start_subproject' => 'required|date',
-            'target_subproject' => 'required|date',
+            'durasi_hari' => 'required|integer|min:1',
             'id_karyawan' => 'required|exists:karyawan,id_karyawan',
             'management_id' => 'required|exists:management,management_id',
         ]);
@@ -93,13 +93,13 @@ class SubprojectController extends Controller
             'nama_subproject', 'start_subproject', 'target_subproject', 'id_karyawan', 'management_id'
         ]));
 
-        return redirect()->route('projects.show', $subproject->project_id)->with('success', 'Subproject berhasil diupdate');
+        return redirect()->route('projects.show', $subproject->job_id)->with('success', 'Subproject berhasil diupdate');
     }
 
     public function destroy($id)
     {
         $subproject = Subproject::findOrFail($id);
-        $projectId = $subproject->project_id;
+        $projectId = $subproject->job_id;
         $subproject->delete();
         return redirect()->route('projects.show', $projectId)->with('success', 'Subproject berhasil dihapus');
     }

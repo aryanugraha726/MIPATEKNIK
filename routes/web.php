@@ -9,7 +9,6 @@ use App\Http\Controllers\ManagementController;
 use App\Http\Controllers\MasterDataController;
 use App\Http\Controllers\PPICController;
 use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SatuanController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\SubprojectController;
@@ -17,6 +16,8 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\TugasController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
+use App\Http\Controllers\MaterialRequestController;
+use App\Http\Controllers\ManagerApprovalController;
 use Illuminate\Support\Facades\Route;
 
 // Auth Routes
@@ -55,15 +56,30 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/transaksi/antrean', [TransactionController::class, 'pendingList'])->name('transaksi.antrean');
         Route::get('/riwayat/masuk', [TransactionController::class, 'historyMasuk'])->name('transaksi.masuk');
         Route::get('/riwayat/keluar', [TransactionController::class, 'historyKeluar'])->name('transaksi.keluar');
+        Route::get('/riwayat/keluar/barang/{id}', [TransactionController::class, 'detailBarangKeluar'])->name('transaksi.keluar.barang');
+        Route::get('/riwayat/keluar/project/{id}', [TransactionController::class, 'detailProjectKeluar'])->name('transaksi.keluar.project');
     });
 
     // =============================================
-    // MENU KARYAWAN (role: ADMIN, KARYAWAN)
-    // Gantt chart dari project yang mereka kerjakan
+    // MENU KARYAWAN (role: ADMIN, KARYAWAN, PURCHASING)
     // =============================================
-    Route::middleware('role:ADMIN,KARYAWAN')->group(function () {
+    Route::middleware('role:ADMIN,KARYAWAN,PURCHASING')->group(function () {
         Route::get('/my-projects', [PPICController::class, 'myProjects'])->name('karyawan.projects');
         Route::get('/my-projects/{id}/gantt', [PPICController::class, 'myGantt'])->name('karyawan.gantt');
+
+        // Material Request
+        Route::get('/material-request', [MaterialRequestController::class, 'index'])->name('material_request.index');
+        Route::get('/material-request/create', [MaterialRequestController::class, 'create'])->name('material_request.create');
+        Route::post('/material-request', [MaterialRequestController::class, 'store'])->name('material_request.store');
+    });
+
+    // =============================================
+    // MENU MANAGER (role: ADMIN, MANAGEMENT)
+    // =============================================
+    Route::middleware('role:ADMIN,MANAGEMENT')->group(function () {
+        Route::get('/manager-approval', [ManagerApprovalController::class, 'index'])->name('manager_approval.index');
+        Route::post('/manager-approval/{no_nota}/approve', [ManagerApprovalController::class, 'approve'])->name('manager_approval.approve');
+        Route::post('/manager-approval/{no_nota}/reject', [ManagerApprovalController::class, 'reject'])->name('manager_approval.reject');
     });
 
     // =============================================
@@ -98,7 +114,6 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('vendor', VendorController::class)->except(['show']);
         Route::resource('kategori', KategoriBarangController::class)->except(['show']);
         Route::resource('satuan', SatuanController::class)->except(['show']);
-        Route::resource('role', RoleController::class)->except(['show']);
         Route::resource('users', UserController::class);
     });
 

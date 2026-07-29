@@ -20,11 +20,11 @@ class RoleMiddleware
             return redirect()->route('login');
         }
 
-        // Get the role string from user's role relation
-        $userRole = auth()->user()->role->nama_role ?? '';
+        // Get the roles array from user's model
+        $userRoles = auth()->user()->roles();
 
-        if (!in_array($userRole, $roles)) {
-            abort(403, 'Akses ditolak! Anda tidak memiliki izin (Role: ' . implode(', ', $roles) . ') untuk mengakses halaman ini.');
+        if (empty(array_intersect($userRoles, $roles))) {
+            abort(403, 'Akses ditolak! Anda tidak memiliki izin (Role dibutuhkan: ' . implode(', ', $roles) . ', Role Anda: ' . implode(', ', $userRoles) . ') untuk mengakses halaman ini.');
         }
 
         return $next($request);

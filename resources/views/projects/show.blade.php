@@ -11,8 +11,8 @@
             </h1>
         </div>
         <div>
-            <a href="{{ route('ppic.gantt', $project->project_id) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded font-bold shadow-sm mr-2">Gantt Chart</a>
-            <a href="{{ route('projects.edit', $project->project_id) }}" class="bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200 py-2 px-4 rounded font-bold shadow-sm mr-2">Edit Project</a>
+            <a href="{{ route('ppic.gantt', $project->job_id) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded font-bold shadow-sm mr-2">Gantt Chart</a>
+            <a href="{{ route('projects.edit', $project->job_id) }}" class="bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200 py-2 px-4 rounded font-bold shadow-sm mr-2">Edit Project</a>
         </div>
     </div>
 
@@ -21,7 +21,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <p class="text-sm text-gray-500 mb-1">ID Project</p>
-                <p class="font-bold text-lg">#{{ $project->project_id }}</p>
+                <p class="font-bold text-lg">#{{ $project->job_id }}</p>
             </div>
             <div>
                 <p class="text-sm text-gray-500 mb-1">Prioritas</p>
@@ -48,7 +48,7 @@
     <!-- Subprojects Section -->
     <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-bold text-gray-800">Daftar Subproject</h2>
-        <a href="{{ route('subprojects.create', ['project_id' => $project->project_id]) }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow text-sm">
+        <a href="{{ route('subprojects.create', ['job_id' => $project->job_id]) }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow text-sm">
             + Tambah Subproject
         </a>
     </div>

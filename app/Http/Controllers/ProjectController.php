@@ -18,7 +18,7 @@ class ProjectController extends Controller
 
     public function create()
     {
-        $nextId = Project::max('project_id') + 1;
+        $nextId = Project::max('job_id') + 1;
         $managements = Management::with(['karyawan:id_karyawan,nm_karyawan', 'divisi:id_divisi,nama_divisi'])
             ->select('management_id', 'id_karyawan', 'id_divisi')->get();
         return view('projects.create', compact('managements', 'nextId'));
@@ -27,20 +27,20 @@ class ProjectController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'project_id' => 'required|integer|unique:project,project_id',
+            'job_id' => 'required|integer|unique:project,job_id',
             'nama_project' => 'required|string|max:50',
             'prioritas' => 'required|string|max:8',
             'start_project' => 'required|date',
-            'target_project' => 'required|date',
+            'durasi_hari' => 'required|integer|min:1',
             'management_id' => 'required|exists:management,management_id',
         ]);
         
         Project::create([
-            'project_id' => $request->project_id,
+            'job_id' => $request->job_id,
             'nama_project' => $request->nama_project,
             'prioritas' => $request->prioritas,
             'start_project' => $request->start_project,
-            'target_project' => $request->target_project,
+            'target_project' => date('Y-m-d', strtotime($request->start_project . ' + ' . $request->durasi_hari . ' days')),
             'management_id' => $request->management_id,
         ]);
 
@@ -67,12 +67,14 @@ class ProjectController extends Controller
             'nama_project' => 'required|string|max:50',
             'prioritas' => 'required|string|max:8',
             'start_project' => 'required|date',
-            'target_project' => 'required|date',
+            'durasi_hari' => 'required|integer|min:1',
             'management_id' => 'required|exists:management,management_id',
         ]);
 
         $project = Project::findOrFail($id);
-        $project->update($request->only(['nama_project', 'prioritas', 'start_project', 'target_project', 'management_id']));
+        $data = $request->only(['nama_project', 'prioritas', 'start_project', 'management_id']);
+        $data['target_project'] = date('Y-m-d', strtotime($request->start_project . ' + ' . $request->durasi_hari . ' days'));
+        $project->update($data);
 
         return redirect()->route('projects.index')->with('success', 'Project berhasil diupdate');
     }

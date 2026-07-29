@@ -3,7 +3,7 @@
 @section('content')
 <div class="max-w-4xl mx-auto">
     <div class="mb-6 flex items-center justify-between">
-        <h1 class="text-2xl font-bold">Edit Project #{{ $project->project_id }}</h1>
+        <h1 class="text-2xl font-bold">Edit Project #{{ $project->job_id }}</h1>
         <a href="{{ route('projects.index') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
     </div>
 
@@ -18,7 +18,7 @@
     @endif
 
     <div class="bg-white rounded shadow-sm border border-gray-100 p-6">
-        <form action="{{ route('projects.update', $project->project_id) }}" method="POST">
+        <form action="{{ route('projects.update', $project->job_id) }}" method="POST">
             @csrf
             @method('PUT')
             <div class="mb-4">
@@ -41,8 +41,12 @@
                     <input type="date" name="start_project" value="{{ old('start_project', $project->start_project) }}" class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
                 </div>
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Target Selesai</label>
-                    <input type="date" name="target_project" value="{{ old('target_project', $project->target_project) }}" class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
+                    @php $durasi = \Carbon\Carbon::parse($project->start_project)->diffInDays(\Carbon\Carbon::parse($project->target_project)); @endphp
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Durasi Pengerjaan (Hari)</label>
+                    <div class="flex items-center">
+                        <input type="number" name="durasi_hari" min="1" value="{{ old('durasi_hari', $durasi) }}" class="shadow-sm appearance-none border rounded-l w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
+                        <span class="bg-gray-100 border border-l-0 border-gray-300 rounded-r py-2 px-4 text-gray-600">Hari</span>
+                    </div>
                 </div>
             </div>
 

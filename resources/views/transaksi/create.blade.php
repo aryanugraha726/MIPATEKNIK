@@ -62,10 +62,10 @@
 
                 <div id="project_container" style="display: none;" class="bg-blue-50 p-4 rounded-lg border border-blue-100">
                     <label class="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide">Tujuan Project <span class="text-red-500">*</span></label>
-                    <select name="project_id" id="project_id" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    <select name="job_id" id="job_id" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                         <option value="" disabled selected>-- Pilih Project Tujuan --</option>
                         @foreach($projects as $proj)
-                            <option value="{{ $proj->project_id }}">{{ $proj->project_id }} - {{ $proj->nama_project }}</option>
+                            <option value="{{ $proj->job_id }}">{{ $proj->job_id }} - {{ $proj->nama_project }}</option>
                         @endforeach
                     </select>
                     <p class="text-xs text-blue-600 mt-2">Wajib diisi jika barang dikeluarkan untuk kebutuhan project.</p>
@@ -162,7 +162,7 @@
     function toggleProject() {
         var jenis = document.getElementById('jenis_transaksi').value;
         var projectContainer = document.getElementById('project_container');
-        var projectInput = document.getElementById('project_id');
+        var projectInput = document.getElementById('job_id');
         var hargaContainer = document.getElementById('harga_container');
         var hargaInput = document.getElementById('harga_masuk');
 

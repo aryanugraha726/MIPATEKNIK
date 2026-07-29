@@ -14,7 +14,7 @@
                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $p->prioritas == 'TINGGI' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
                     {{ $p->prioritas }}
                 </span>
-                <span class="text-xs text-gray-500 font-mono">#{{ $p->project_id }}</span>
+                <span class="text-xs text-gray-500 font-mono">#{{ $p->job_id }}</span>
             </div>
             
             <h3 class="text-lg font-bold text-gray-900 mb-2 truncate">{{ $p->nama_project }}</h3>
@@ -25,7 +25,7 @@
                 <p><strong>PIC:</strong> {{ $p->management->karyawan->nm_karyawan ?? '-' }}</p>
             </div>
 
-            <a href="{{ route('karyawan.gantt', $p->project_id) }}" class="block w-full text-center bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition">
+            <a href="{{ route('karyawan.gantt', $p->job_id) }}" class="block w-full text-center bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition">
                 Lihat Timeline (Gantt) &rarr;
             </a>
         </div>

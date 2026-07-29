@@ -22,7 +22,7 @@
             @csrf
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">ID Project (Job ID)</label>
-                <input type="number" name="project_id" value="{{ old('project_id', $nextId) }}" class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
+                <input type="number" name="job_id" value="{{ old('job_id', $nextId) }}" class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
                 <p class="text-xs text-gray-500 mt-1">ID otomatis digenerate, namun dapat Anda ubah manual.</p>
             </div>
 
@@ -46,8 +46,11 @@
                     <input type="date" name="start_project" value="{{ old('start_project') }}" class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
                 </div>
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Target Selesai</label>
-                    <input type="date" name="target_project" value="{{ old('target_project') }}" class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Durasi Pengerjaan (Hari)</label>
+                    <div class="flex items-center">
+                        <input type="number" name="durasi_hari" min="1" value="{{ old('durasi_hari', 1) }}" class="shadow-sm appearance-none border rounded-l w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
+                        <span class="bg-gray-100 border border-l-0 border-gray-300 rounded-r py-2 px-4 text-gray-600">Hari</span>
+                    </div>
                 </div>
             </div>
 

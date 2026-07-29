@@ -27,7 +27,7 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($projects as $p)
                 <tr class="hover:bg-gray-50 transition">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ $p->project_id }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ $p->job_id }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{{ $p->nama_project }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $p->prioritas == 'TINGGI' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
@@ -41,10 +41,10 @@
                         {{ $p->management->karyawan->nm_karyawan ?? 'N/A' }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                        <a href="{{ route('projects.show', $p->project_id) }}" class="text-indigo-600 hover:text-indigo-900 mx-1 border border-indigo-200 px-2 py-1 rounded bg-indigo-50">Detail</a>
-                        <a href="{{ route('ppic.gantt', $p->project_id) }}" class="text-yellow-600 hover:text-yellow-900 mx-1 border border-yellow-200 px-2 py-1 rounded bg-yellow-50">Gantt</a>
-                        <a href="{{ route('projects.edit', $p->project_id) }}" class="text-blue-600 hover:text-blue-900 mx-1">Edit</a>
-                        <form action="{{ route('projects.destroy', $p->project_id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus?')">
+                        <a href="{{ route('projects.show', $p->job_id) }}" class="text-indigo-600 hover:text-indigo-900 mx-1 border border-indigo-200 px-2 py-1 rounded bg-indigo-50">Detail</a>
+                        <a href="{{ route('ppic.gantt', $p->job_id) }}" class="text-yellow-600 hover:text-yellow-900 mx-1 border border-yellow-200 px-2 py-1 rounded bg-yellow-50">Gantt</a>
+                        <a href="{{ route('projects.edit', $p->job_id) }}" class="text-blue-600 hover:text-blue-900 mx-1">Edit</a>
+                        <form action="{{ route('projects.destroy', $p->job_id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="text-red-600 hover:text-red-900 mx-1">Hapus</button>

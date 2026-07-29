@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MIPA TEKNIK - Enterprise System</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <style>
+        /* Customizing Tom Select to better match Tailwind forms */
+        .ts-control { border-radius: 0.5rem; padding: 0.625rem; border-color: #d1d5db; box-shadow: none; }
+        .ts-control.focus { box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); border-color: #3b82f6; }
+    </style>
 </head>
 <body class="bg-gray-50 font-sans flex h-screen overflow-hidden">
 
@@ -14,12 +21,12 @@
             <h2 class="text-xl font-black tracking-wider text-blue-500">MIPA TEKNIK</h2>
             <p class="text-xs text-gray-500 mt-1 font-semibold uppercase tracking-widest">Enterprise System</p>
         </div>
-        @php $role = auth()->user()->role->nama_role ?? ''; @endphp
+        @php $roles = auth()->user()->roles(); @endphp
         <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
             {{-- ============================================= --}}
             {{-- MENU PPIC (ADMIN, PPIC) --}}
             {{-- ============================================= --}}
-            @if(in_array($role, ['ADMIN', 'PPIC']))
+            @if(array_intersect(['ADMIN', 'PPIC'], $roles))
             <div class="pt-6 pb-2">
                 <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">PPIC</p>
             </div>
@@ -34,7 +41,7 @@
             {{-- ============================================= --}}
             {{-- MENU PURCHASING (ADMIN, PURCHASING) --}}
             {{-- ============================================= --}}
-            @if(in_array($role, ['ADMIN', 'PURCHASING']))
+            @if(array_intersect(['ADMIN', 'PURCHASING'], $roles))
             <div class="pt-6 pb-2">
                 <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Purchasing</p>
             </div>
@@ -59,24 +66,42 @@
             <a href="{{ route('transaksi.keluar') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('transaksi.keluar') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
                 <span class="font-medium text-sm">Riwayat Keluar</span>
             </a>
+            <a href="{{ route('material_request.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('material_request.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
+                <span class="font-medium text-sm">Permintaan Barang</span>
+            </a>
             @endif
 
             {{-- ============================================= --}}
             {{-- MENU KARYAWAN (KARYAWAN) --}}
             {{-- ============================================= --}}
-            @if(in_array($role, ['ADMIN', 'KARYAWAN']))
+            @if(array_intersect(['ADMIN', 'KARYAWAN'], $roles))
             <div class="pt-6 pb-2">
                 <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Karyawan</p>
             </div>
             <a href="{{ route('karyawan.projects') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('karyawan.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
                 <span class="font-medium text-sm">Project Saya</span>
             </a>
+            <a href="{{ route('material_request.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('material_request.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
+                <span class="font-medium text-sm">Permintaan Barang</span>
+            </a>
+            @endif
+
+            {{-- ============================================= --}}
+            {{-- MENU MANAGEMENT --}}
+            {{-- ============================================= --}}
+            @if(array_intersect(['ADMIN', 'MANAGEMENT'], $roles))
+            <div class="pt-6 pb-2">
+                <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Management</p>
+            </div>
+            <a href="{{ route('manager_approval.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('manager_approval.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
+                <span class="font-medium text-sm">Persetujuan Manager</span>
+            </a>
             @endif
 
             {{-- ============================================= --}}
             {{-- MENU DIREKTUR UTAMA (DIREKTUR UTAMA) --}}
             {{-- ============================================= --}}
-            @if(in_array($role, ['ADMIN', 'DIREKTUR UTAMA']))
+            @if(array_intersect(['ADMIN', 'DIREKTUR UTAMA'], $roles))
             <div class="pt-6 pb-2">
                 <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Direktur Utama</p>
             </div>
@@ -94,11 +119,11 @@
             {{-- ============================================= --}}
             {{-- MENU ADMINISTRATOR (ADMIN saja) --}}
             {{-- ============================================= --}}
-            @if($role == 'ADMIN')
+            @if(in_array('ADMIN', $roles))
             <div class="pt-6 pb-2">
                 <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Administrator</p>
             </div>
-            <a href="{{ route('master-data.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->is('master-data*') || request()->is('divisi*') || request()->is('karyawan*') || request()->is('vendor*') || request()->is('satuan*') || request()->is('kategori*') || request()->is('role*') || request()->is('management*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
+            <a href="{{ route('master-data.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->is('master-data*') || request()->is('divisi*') || request()->is('karyawan*') || request()->is('vendor*') || request()->is('satuan*') || request()->is('kategori*') || request()->is('management*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
                 <span class="font-medium text-sm">Master Data</span>
             </a>
             <a href="{{ route('users.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('users.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
@@ -111,7 +136,7 @@
             <div class="flex items-center justify-between">
                 <div class="flex flex-col">
                     <span class="text-sm font-bold text-gray-200">{{ auth()->user()->karyawan->nm_karyawan ?? auth()->user()->username }}</span>
-                    <span class="text-xs text-blue-400 font-semibold uppercase tracking-wider">{{ $role }}</span>
+                    <span class="text-xs text-blue-400 font-semibold uppercase tracking-wider">{{ implode(', ', $roles) }}</span>
                 </div>
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
@@ -128,5 +153,17 @@
         @yield('content')
     </main>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Initialize TomSelect on all select elements except those with .no-search
+            document.querySelectorAll('select:not(.no-search)').forEach((el) => {
+                if (!el.tomselect) {
+                    new TomSelect(el, {
+                        create: false
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 </html>

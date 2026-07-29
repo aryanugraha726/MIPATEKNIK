@@ -22,9 +22,30 @@ class User extends Authenticatable
     protected $keyType = 'string';
     public $timestamps = false;
 
-    public function role()
+    /**
+     * Get user's roles dynamically from divisions they manage.
+     * If they don't manage any division, they are just a 'KARYAWAN'.
+     */
+    public function roles(): array
     {
-        return $this->belongsTo(Role::class, 'role_id', 'role_id');
+        if (!$this->karyawan) {
+            return ['KARYAWAN'];
+        }
+
+        $divisiNames = \App\Models\Management::where('id_karyawan', $this->id_karyawan)
+            ->join('divisi', 'management.id_divisi', '=', 'divisi.id_divisi')
+            ->pluck('divisi.nama_divisi')
+            ->toArray();
+
+        if (empty($divisiNames)) {
+            return ['KARYAWAN'];
+        }
+
+        // Anyone who manages a division automatically gets MANAGEMENT and KARYAWAN roles
+        $divisiNames[] = 'MANAGEMENT';
+        $divisiNames[] = 'KARYAWAN';
+
+        return array_unique($divisiNames);
     }
 
     public function karyawan()

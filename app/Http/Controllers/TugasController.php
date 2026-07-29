@@ -41,7 +41,7 @@ class TugasController extends Controller
             'subproject_id' => 'required|exists:subproject,subproject_id',
             'tugas' => 'required|string|max:50',
             'start_tugas' => 'required|date',
-            'target_tugas' => 'required|date',
+            'durasi_hari' => 'required|integer|min:1',
             'id_karyawan' => 'nullable|exists:karyawan,id_karyawan',
             'id_vendor' => 'nullable|exists:vendor,id_vendor',
         ]);
@@ -51,7 +51,7 @@ class TugasController extends Controller
             'subproject_id' => $request->subproject_id,
             'tugas' => $request->tugas,
             'start_tugas' => $request->start_tugas,
-            'target_tugas' => $request->target_tugas,
+            'target_tugas' => date('Y-m-d', strtotime($request->start_tugas . ' + ' . $request->durasi_hari . ' days')),
             'id_karyawan' => $request->id_karyawan ?: null,
             'id_vendor' => $request->id_vendor ?: null,
         ]);
@@ -79,7 +79,7 @@ class TugasController extends Controller
         $request->validate([
             'tugas' => 'required|string|max:50',
             'start_tugas' => 'required|date',
-            'target_tugas' => 'required|date',
+            'durasi_hari' => 'required|integer|min:1',
             'id_karyawan' => 'nullable|exists:karyawan,id_karyawan',
             'id_vendor' => 'nullable|exists:vendor,id_vendor',
         ]);
@@ -88,7 +88,7 @@ class TugasController extends Controller
         $tugas->update([
             'tugas' => $request->tugas,
             'start_tugas' => $request->start_tugas,
-            'target_tugas' => $request->target_tugas,
+            'target_tugas' => date('Y-m-d', strtotime($request->start_tugas . ' + ' . $request->durasi_hari . ' days')),
             'id_karyawan' => $request->id_karyawan ?: null,
             'id_vendor' => $request->id_vendor ?: null,
         ]);
@@ -102,15 +102,14 @@ class TugasController extends Controller
         
         // Cek Role
         $user = auth()->user();
-        $role = $user->role->nama_role ?? '';
+        $roles = $user->roles();
         
-        // Hanya PPIC atau Karyawan yang bersangkutan yang bisa checklist
-        // Karyawan hanya bisa checklist tugasnya sendiri. PPIC bisa checklist semuanya.
-        if ($role === 'KARYAWAN') {
+        // Karyawan biasa hanya bisa update tugas miliknya
+        if (in_array('KARYAWAN', $roles) && empty(array_intersect(['ADMIN', 'PPIC'], $roles))) {
             if ($tugas->id_karyawan !== $user->id_karyawan) {
                 return redirect()->back()->with('error', 'Anda tidak berhak mengubah status tugas ini.');
             }
-        } elseif (!in_array($role, ['ADMIN', 'PPIC'])) {
+        } elseif (empty(array_intersect(['ADMIN', 'PPIC'], $roles))) {
             return redirect()->back()->with('error', 'Anda tidak berhak mengubah status tugas ini.');
         }
 

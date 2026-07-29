@@ -10,7 +10,7 @@ class PPICController extends Controller
     public function index()
     {
         // Get all projects for the dashboard
-        $projects = Project::with(['management.karyawan', 'management.divisi'])->orderBy('project_id', 'desc')->get();
+        $projects = Project::with(['management.karyawan', 'management.divisi'])->orderBy('job_id', 'desc')->get();
         return view('ppic.index', compact('projects'));
     }
 
@@ -62,7 +62,7 @@ class PPICController extends Controller
               ->orWhereHas('tugas', function($q2) use ($karyawanId) {
                   $q2->where('id_karyawan', $karyawanId);
               });
-        })->with(['management.karyawan', 'management.divisi'])->orderBy('project_id', 'desc')->get();
+        })->with(['management.karyawan', 'management.divisi'])->orderBy('job_id', 'desc')->get();
         
         return view('karyawan.projects', compact('projects'));
     }

@@ -65,7 +65,7 @@
                     <div class="flex justify-between items-center">
                         <div>
                             <p class="text-sm font-medium text-red-600">{{ $keluar->barang->nama_barang ?? 'Barang tidak ditemukan' }} ({{ $keluar->id_barang }})</p>
-                            <p class="text-xs text-gray-500">Project ID: {{ $keluar->project_id }} | {{ date('d M Y', strtotime($keluar->tgl_keluar)) }}</p>
+                            <p class="text-xs text-gray-500">Job ID: {{ $keluar->job_id }} | {{ date('d M Y', strtotime($keluar->tgl_keluar)) }}</p>
                         </div>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                             -{{ $keluar->jumlah_keluar }} Keluar

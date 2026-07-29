@@ -6,7 +6,7 @@
     <div class="mb-6 flex items-center justify-between">
         <div>
             <h1 class="text-2xl font-bold flex items-center">
-                <a href="{{ route('projects.show', $subproject->project_id) }}" class="text-gray-500 hover:text-gray-900 mr-2">&larr;</a>
+                <a href="{{ route('projects.show', $subproject->job_id) }}" class="text-gray-500 hover:text-gray-900 mr-2">&larr;</a>
                 Subproject: {{ $subproject->nama_subproject }}
             </h1>
         </div>
@@ -21,7 +21,7 @@
             <div>
                 <p class="text-sm text-gray-500 mb-1">Project Induk</p>
                 <p class="font-bold text-indigo-700">
-                    <a href="{{ route('projects.show', $subproject->project_id) }}">{{ $subproject->project->nama_project }}</a>
+                    <a href="{{ route('projects.show', $subproject->job_id) }}">{{ $subproject->project->nama_project }}</a>
                 </p>
             </div>
             <div>

@@ -13,13 +13,12 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with(['role', 'karyawan'])->get();
+        $users = User::with(['karyawan'])->get();
         return view('users.index', compact('users'));
     }
 
     public function create()
     {
-        $roles = Role::all();
         $karyawans = Karyawan::all();
         // Generate new user_id (e.g., U004)
         $lastUser = User::orderBy('user_id', 'desc')->first();
@@ -30,7 +29,7 @@ class UserController extends Controller
             $newId = 'U001';
         }
 
-        return view('users.create', compact('roles', 'karyawans', 'newId'));
+        return view('users.create', compact('karyawans', 'newId'));
     }
 
     public function store(Request $request)
@@ -39,7 +38,6 @@ class UserController extends Controller
             'user_id' => 'required|unique:user,user_id',
             'username' => 'required|unique:user,username',
             'password' => 'required|min:6',
-            'role_id' => 'required',
             'id_karyawan' => 'required'
         ]);
 
@@ -47,7 +45,6 @@ class UserController extends Controller
             'user_id' => $request->user_id,
             'username' => $request->username,
             'password' => Hash::make($request->password),
-            'role_id' => $request->role_id,
             'id_karyawan' => $request->id_karyawan,
         ]);
 
@@ -57,16 +54,14 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::findOrFail($id);
-        $roles = Role::all();
         $karyawans = Karyawan::all();
-        return view('users.edit', compact('user', 'roles', 'karyawans'));
+        return view('users.edit', compact('user', 'karyawans'));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
             'username' => 'required|unique:user,username,'.$id.',user_id',
-            'role_id' => 'required',
             'id_karyawan' => 'required'
         ]);
 
@@ -74,7 +69,6 @@ class UserController extends Controller
         
         $data = [
             'username' => $request->username,
-            'role_id' => $request->role_id,
             'id_karyawan' => $request->id_karyawan,
         ];
 
