@@ -36,7 +36,7 @@
                 </p>
             </div>
             <div>
-                <p class="text-sm text-gray-500 mb-1">Management PIC</p>
+                <p class="text-sm text-gray-500 mb-1">Penanggung Jawab</p>
                 <p class="font-medium text-gray-800">
                     {{ $project->management->karyawan->nm_karyawan ?? 'N/A' }} 
                     <span class="text-gray-400 text-sm">({{ $project->management->divisi->nama_divisi ?? '-' }})</span>
@@ -66,7 +66,7 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Subproject</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jadwal</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PIC Karyawan</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Penanggung Jawab</th>
                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                 </tr>
             </thead>

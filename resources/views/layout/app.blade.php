@@ -48,11 +48,11 @@
             <a href="{{ route('dashboard.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('dashboard.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
                 <span class="font-medium text-sm">Dashboard Gudang</span>
             </a>
-            <a href="{{ route('barang.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('barang.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Daftar Barang</span>
-            </a>
             <a href="{{ route('stock.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('stock.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
                 <span class="font-medium text-sm">Stock Opname</span>
+            </a>
+            <a href="{{ route('barang.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('barang.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
+                <span class="font-medium text-sm">Daftar Barang</span>
             </a>
             <a href="{{ route('transaksi.antrean') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('transaksi.antrean') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
                 <span class="font-medium text-sm">Antrean Barang</span>
@@ -66,8 +66,14 @@
             <a href="{{ route('transaksi.keluar') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('transaksi.keluar') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
                 <span class="font-medium text-sm">Riwayat Keluar</span>
             </a>
-            <a href="{{ route('material_request.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('material_request.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
+            <a href="{{ route('material-requests.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('material-requests.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
                 <span class="font-medium text-sm">Permintaan Barang</span>
+            </a>
+            <a href="{{ route('po.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('po.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
+                <span class="font-medium text-sm">Purchase Order</span>
+            </a>
+            <a href="{{ route('shipping-address.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('shipping-address.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
+                <span class="font-medium text-sm">Alamat Pengiriman</span>
             </a>
             @endif
 
@@ -81,7 +87,7 @@
             <a href="{{ route('karyawan.projects') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('karyawan.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
                 <span class="font-medium text-sm">Project Saya</span>
             </a>
-            <a href="{{ route('material_request.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('material_request.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
+            <a href="{{ route('material-requests.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('material-requests.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
                 <span class="font-medium text-sm">Permintaan Barang</span>
             </a>
             @endif
@@ -113,6 +119,9 @@
             </a>
             <a href="{{ route('ppic.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('ppic.index') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
                 <span class="font-medium text-sm">Jadwal Project (Gantt)</span>
+            </a>
+            <a href="{{ route('po.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('po.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
+                <span class="font-medium text-sm">Persetujuan PO</span>
             </a>
             @endif
 

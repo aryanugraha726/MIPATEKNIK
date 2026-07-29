@@ -21,7 +21,7 @@
         <form action="{{ route('projects.store') }}" method="POST">
             @csrf
             <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2">ID Project (Job ID)</label>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Job ID</label>
                 <input type="number" name="job_id" value="{{ old('job_id', $nextId) }}" class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
                 <p class="text-xs text-gray-500 mt-1">ID otomatis digenerate, namun dapat Anda ubah manual.</p>
             </div>
@@ -55,9 +55,9 @@
             </div>
 
             <div class="mb-6">
-                <label class="block text-gray-700 text-sm font-bold mb-2">Management PIC</label>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Penanggung Jawab</label>
                 <select name="management_id" class="shadow-sm border rounded w-full py-2 px-3 text-gray-700 bg-white focus:outline-none focus:ring focus:border-blue-300" required>
-                    <option value="">-- Pilih PIC Management --</option>
+                    <option value="">-- Pilih Penanggung Jawab --</option>
                     @foreach($managements as $m)
                         <option value="{{ $m->management_id }}" {{ old('management_id') == $m->management_id ? 'selected' : '' }}>
                             {{ $m->karyawan->nm_karyawan ?? 'Unknown' }} ({{ $m->divisi->nama_divisi ?? 'Unknown Divisi' }})

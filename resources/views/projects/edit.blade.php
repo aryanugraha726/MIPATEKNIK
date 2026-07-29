@@ -51,9 +51,9 @@
             </div>
 
             <div class="mb-6">
-                <label class="block text-gray-700 text-sm font-bold mb-2">Management PIC</label>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Penanggung Jawab</label>
                 <select name="management_id" class="shadow-sm border rounded w-full py-2 px-3 text-gray-700 bg-white focus:outline-none focus:ring focus:border-blue-300" required>
-                    <option value="">-- Pilih PIC Management --</option>
+                    <option value="">-- Pilih Penanggung Jawab --</option>
                     @foreach($managements as $m)
                         <option value="{{ $m->management_id }}" {{ old('management_id', $project->management_id) == $m->management_id ? 'selected' : '' }}>
                             {{ $m->karyawan->nm_karyawan ?? 'Unknown' }} ({{ $m->divisi->nama_divisi ?? 'Unknown Divisi' }})

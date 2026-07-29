@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 class BarangKeluar extends Model {
     protected $table = 'barang_keluar';
     protected $primaryKey = 'id_keluar';
+    public $incrementing = false;
     public $timestamps = false;
     protected $guarded = [];
 

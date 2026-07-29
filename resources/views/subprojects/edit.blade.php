@@ -48,9 +48,9 @@
             </div>
 
             <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2">Karyawan (Pelaksana Utama)</label>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Operator</label>
                 <select name="id_karyawan" class="shadow-sm border rounded w-full py-2 px-3 text-gray-700 bg-white focus:outline-none focus:ring focus:border-blue-300" required>
-                    <option value="">-- Pilih Karyawan --</option>
+                    <option value="">-- Pilih Operator --</option>
                     @foreach($karyawans as $k)
                         <option value="{{ $k->id_karyawan }}" {{ old('id_karyawan', $subproject->id_karyawan) == $k->id_karyawan ? 'selected' : '' }}>
                             {{ $k->nm_karyawan }}
@@ -60,9 +60,9 @@
             </div>
 
             <div class="mb-6">
-                <label class="block text-gray-700 text-sm font-bold mb-2">Management (Pengawas)</label>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Penanggung Jawab</label>
                 <select name="management_id" class="shadow-sm border rounded w-full py-2 px-3 text-gray-700 bg-white focus:outline-none focus:ring focus:border-blue-300" required>
-                    <option value="">-- Pilih Pengawas --</option>
+                    <option value="">-- Pilih Penanggung Jawab --</option>
                     @foreach($managements as $m)
                         <option value="{{ $m->management_id }}" {{ old('management_id', $subproject->management_id) == $m->management_id ? 'selected' : '' }}>
                             {{ $m->karyawan->nm_karyawan ?? 'Unknown' }} ({{ $m->divisi->nama_divisi ?? 'Unknown Divisi' }})

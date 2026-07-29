@@ -10,6 +10,8 @@ use App\Models\Satuan;
 use App\Models\BarangMasuk;
 use App\Models\BarangKeluar;
 use App\Models\StockAktual;
+use App\Models\PO;
+use App\Models\PODetail;
 use Illuminate\Support\Facades\DB;
 
 class TransactionController extends Controller
@@ -21,57 +23,101 @@ class TransactionController extends Controller
         $projects = Project::select('job_id', 'nama_project')->get();
         $kategoris = KategoriBarang::all();
         $satuans = Satuan::all();
-        return view('transaksi.create', compact('barangs', 'projects', 'kategoris', 'satuans'));
+        $pos = PO::where('status', 'APPROVED')->orderBy('tgl_po', 'desc')->get();
+        return view('transaksi.create', compact('barangs', 'projects', 'kategoris', 'satuans', 'pos'));
+    }
+
+    public function getPoDetails($no_po)
+    {
+        $po = PO::with(['details.barang.satuan'])->where('no_po', $no_po)->first();
+        if (!$po) {
+            return response()->json(['error' => 'PO tidak ditemukan'], 404);
+        }
+
+        // Ambil ID Barang yang sudah diterima dari ket_masuk
+        $receivedItemIds = BarangMasuk::where('ket_masuk', $no_po)->pluck('id_barang')->toArray();
+
+        $items = $po->details->map(function($detail) use ($receivedItemIds) {
+            return [
+                'id_barang' => $detail->id_barang,
+                'nama_barang' => $detail->barang ? $detail->barang->nama_barang : '-',
+                'qty_po' => $detail->qty_po,
+                'satuan' => $detail->barang && $detail->barang->satuan ? $detail->barang->satuan->nama_satuan : ($detail->id_satuan ?? '-'),
+                'is_received' => in_array($detail->id_barang, $receivedItemIds)
+            ];
+        });
+
+        return response()->json($items);
     }
 
     // Memproses Data dari Form
     public function store(Request $request)
     {
-        $request->validate([
-            'jenis_transaksi' => 'required|in:masuk,keluar',
-            'id_barang' => 'required|exists:barang,id_barang',
-            'tanggal' => 'required|date',
-            'jumlah' => 'required|integer|min:1',
-            'keterangan' => 'nullable|string|max:30',
-        ]);
-
-        $barang = Barang::findOrFail($request->id_barang);
-        $stockAktual = StockAktual::where('id_barang', $request->id_barang)->first();
-        $currentActiveStock = $stockAktual ? $stockAktual->sisa_stock : 0;
-
         if ($request->jenis_transaksi == 'masuk') {
-            $request->validate(['harga_masuk' => 'required|numeric|min:0']);
-            
-            $status = 'ACTIVE';
-            
-            // Logic: if active stock > 0 and price differs, goes to queue
-            if ($currentActiveStock > 0 && $request->harga_masuk != $barang->harga) {
-                $status = 'PENDING';
-            } else if ($currentActiveStock <= 0 && $request->harga_masuk != $barang->harga) {
-                // If active stock is 0, it becomes active immediately and updates master price
-                $barang->update(['harga' => $request->harga_masuk]);
-            }
-
-            $newId = BarangMasuk::max('id_masuk') + 1; 
-
-            BarangMasuk::create([
-                'id_masuk'  => $newId ?: 1,
-                'id_barang' => $request->id_barang,
-                'tgl_masuk' => $request->tanggal,
-                'jml_masuk' => $request->jumlah,
-                'ket_masuk' => $request->keterangan,
-                'harga_masuk' => $request->harga_masuk,
-                'status' => $status
+            $request->validate([
+                'no_po' => 'required|exists:po,no_po',
+                'items' => 'required|array|min:1',
             ]);
 
-            if ($status == 'PENDING') {
-                return redirect()->route('stock.index')->with('success', 'Barang berhasil disimpan di Stok Antrean (PENDING) karena harga berbeda dan stok lama belum habis.');
-            } else {
-                return redirect()->route('stock.index')->with('success', 'Transaksi barang masuk berhasil disimpan! Stok telah terupdate.');
+            $noPo = $request->no_po;
+            $po = PO::where('no_po', $noPo)->firstOrFail();
+            
+            DB::beginTransaction();
+            try {
+                $receivedItemIds = BarangMasuk::where('ket_masuk', $noPo)->pluck('id_barang')->toArray();
+                
+                foreach ($request->items as $idBarang) {
+                    // Skip if already received
+                    if (in_array($idBarang, $receivedItemIds)) continue;
+
+                    $detail = PODetail::where('no_po', $noPo)->where('id_barang', $idBarang)->first();
+                    $barang = Barang::findOrFail($idBarang);
+                    
+                    $hargaBeli = ($detail && $detail->harga) ? $detail->harga : $barang->harga;
+                    $isPriceDifferent = ($hargaBeli != $barang->harga);
+                    $status = $isPriceDifferent ? 'PENDING' : 'ACTIVE';
+                    
+                    $newId = BarangMasuk::max('id_masuk') + 1; 
+
+                    BarangMasuk::create([
+                        'id_masuk'  => $newId ?: 1,
+                        'id_barang' => $idBarang,
+                        'tgl_masuk' => now()->format('Y-m-d'),
+                        'jml_masuk' => $detail ? $detail->qty_po : 0,
+                        'ket_masuk' => $noPo, // Store PO Number here
+                        'harga_masuk' => $isPriceDifferent ? $hargaBeli : $barang->harga,
+                        'status' => $status
+                    ]);
+                }
+
+                // Check if all items in PO are received now
+                $totalItemsInPo = PODetail::where('no_po', $noPo)->count();
+                $totalReceived = BarangMasuk::where('ket_masuk', $noPo)->distinct('id_barang')->count('id_barang');
+
+                if ($totalReceived >= $totalItemsInPo) {
+                    $po->update(['status' => 'SELESAI']);
+                }
+
+                DB::commit();
+                return redirect()->route('stock.index')->with('success', 'Transaksi penerimaan barang dari PO berhasil.');
+            } catch (\Exception $e) {
+                DB::rollBack();
+                \Illuminate\Support\Facades\Log::error('PO Penerimaan Error: ' . $e->getMessage());
+                return redirect()->back()->with('error', 'Gagal memproses penerimaan: ' . $e->getMessage())->withInput();
             }
 
         } else {
-            $request->validate(['job_id' => 'required|exists:project,job_id']);
+            $request->validate([
+                'jenis_transaksi' => 'required|in:masuk,keluar',
+                'id_barang' => 'required|exists:barang,id_barang',
+                'tanggal' => 'required|date',
+                'jumlah' => 'required|integer|min:1',
+                'keterangan' => 'nullable|string|max:30',
+                'job_id' => 'required|exists:project,job_id'
+            ]);
+
+            $barang = Barang::findOrFail($request->id_barang);
+            $stockAktual = StockAktual::where('id_barang', $request->id_barang)->first();
             
             // Opsi 1: Validasi Hard Limit
             // Mengecek apakah stok mencukupi
@@ -163,5 +209,73 @@ class TransactionController extends Controller
             ->get();
 
         return view('transaksi.pending', compact('pending'));
+    }
+
+    // Mengambil detail riwayat keluar untuk satu barang
+    public function detailBarangKeluar($id)
+    {
+        $barang = Barang::findOrFail($id);
+        
+        $keluar = BarangKeluar::with('project')
+            ->where('id_barang', $id)
+            ->orderBy('tgl_keluar', 'desc')
+            ->get();
+
+        $summary = [];
+        $grouped = $keluar->groupBy('job_id');
+        
+        foreach ($grouped as $job_id => $items) {
+            $summary[] = [
+                'job_id' => $job_id,
+                'nama_project' => $items->first()->project->nama_project ?? 'N/A',
+                'total_keluar' => $items->sum('jumlah_keluar'),
+                'rincian' => $items->map(function($i) {
+                    return [
+                        'tanggal' => date('d M Y', strtotime($i->tgl_keluar)),
+                        'jumlah' => $i->jumlah_keluar,
+                        'keterangan' => $i->ket_keluar ?: '-'
+                    ];
+                })->values()
+            ];
+        }
+
+        return response()->json([
+            'barang' => $barang,
+            'summary' => $summary
+        ]);
+    }
+
+    // Mengambil detail riwayat keluar untuk satu project
+    public function detailProjectKeluar($id)
+    {
+        $project = Project::findOrFail($id);
+        
+        $keluar = BarangKeluar::with('barang')
+            ->where('job_id', $id)
+            ->orderBy('tgl_keluar', 'desc')
+            ->get();
+
+        $summary = [];
+        $grouped = $keluar->groupBy('id_barang');
+        
+        foreach ($grouped as $id_barang => $items) {
+            $summary[] = [
+                'id_barang' => $id_barang,
+                'nama_barang' => $items->first()->barang->nama_barang ?? 'N/A',
+                'total_keluar' => $items->sum('jumlah_keluar'),
+                'rincian' => $items->map(function($i) {
+                    return [
+                        'tanggal' => date('d M Y', strtotime($i->tgl_keluar)),
+                        'jumlah' => $i->jumlah_keluar,
+                        'keterangan' => $i->ket_keluar ?: '-'
+                    ];
+                })->values()
+            ];
+        }
+
+        return response()->json([
+            'project' => $project,
+            'summary' => $summary
+        ]);
     }
 }

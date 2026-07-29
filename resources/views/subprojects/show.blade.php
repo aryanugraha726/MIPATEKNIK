@@ -25,7 +25,7 @@
                 </p>
             </div>
             <div>
-                <p class="text-sm text-gray-500 mb-1">Pelaksana (Karyawan)</p>
+                <p class="text-sm text-gray-500 mb-1">Operator</p>
                 <p class="font-medium text-gray-800">{{ $subproject->karyawan->nm_karyawan ?? 'N/A' }}</p>
             </div>
             <div>
@@ -35,7 +35,7 @@
                 </p>
             </div>
             <div>
-                <p class="text-sm text-gray-500 mb-1">Pengawas (Management)</p>
+                <p class="text-sm text-gray-500 mb-1">Penanggung Jawab</p>
                 <p class="font-medium text-gray-800">
                     {{ $subproject->management->karyawan->nm_karyawan ?? 'N/A' }} 
                 </p>

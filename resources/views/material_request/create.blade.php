@@ -18,7 +18,7 @@
     @endif
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <form action="{{ route('material_request.store') }}" method="POST" class="p-6">
+        <form action="{{ route('material-requests.store') }}" method="POST" class="p-6">
             @csrf
             <div class="grid grid-cols-2 gap-6 mb-6">
                 <div>
@@ -64,7 +64,7 @@
             </div>
 
             <div class="mt-8 flex justify-end gap-3">
-                <a href="{{ route('material_request.index') }}" class="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium">Batal</a>
+                <a href="{{ route('material-requests.index') }}" class="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium">Batal</a>
                 <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-sm">Submit Request</button>
             </div>
         </form>

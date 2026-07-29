@@ -18,6 +18,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\MaterialRequestController;
 use App\Http\Controllers\ManagerApprovalController;
+use App\Http\Controllers\ShippingAddressController;
+use App\Http\Controllers\POController;
 use Illuminate\Support\Facades\Route;
 
 // Auth Routes
@@ -52,6 +54,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/barang/next-id/{id_kategori}', [App\Http\Controllers\BarangController::class, 'getNextId'])->name('barang.nextId');
         Route::get('/transaksi/baru', [TransactionController::class, 'create'])->name('transaksi.create');
         Route::post('/transaksi/baru', [TransactionController::class, 'store'])->name('transaksi.store');
+        Route::get('/transaksi/po-details/{no_po}', [TransactionController::class, 'getPoDetails'])->name('transaksi.poDetails')->where('no_po', '.*');
         Route::post('/transaksi/barang-ajax', [App\Http\Controllers\BarangController::class, 'storeAjax'])->name('barang.storeAjax');
         Route::get('/transaksi/antrean', [TransactionController::class, 'pendingList'])->name('transaksi.antrean');
         Route::get('/riwayat/masuk', [TransactionController::class, 'historyMasuk'])->name('transaksi.masuk');
@@ -67,10 +70,23 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/my-projects', [PPICController::class, 'myProjects'])->name('karyawan.projects');
         Route::get('/my-projects/{id}/gantt', [PPICController::class, 'myGantt'])->name('karyawan.gantt');
 
-        // Material Request
-        Route::get('/material-request', [MaterialRequestController::class, 'index'])->name('material_request.index');
-        Route::get('/material-request/create', [MaterialRequestController::class, 'create'])->name('material_request.create');
-        Route::post('/material-request', [MaterialRequestController::class, 'store'])->name('material_request.store');
+        Route::resource('material-requests', MaterialRequestController::class);
+        Route::post('/material-requests/{id}/submit', [MaterialRequestController::class, 'submit'])->name('material-requests.submit');
+        Route::post('/material-requests/{id}/add-detail', [MaterialRequestController::class, 'addDetail'])->name('material-requests.addDetail');
+        Route::delete('/material-requests/detail/{id}', [MaterialRequestController::class, 'removeDetail'])->name('material-requests.removeDetail');
+
+        // Routing untuk Shipping Address
+        Route::resource('shipping-address', ShippingAddressController::class);
+
+        // Routing untuk Purchase Order
+        // ⚠️ Route statis harus didaftarkan SEBELUM resource route yang memakai wildcard
+        Route::get('/po/export-pdf', [POController::class, 'exportPdf'])->name('po.exportPdf');
+        Route::resource('po', POController::class)->parameters(['po' => 'no_po'])->where(['no_po' => '.*']);
+        Route::post('/po/{no_po}/add-detail', [POController::class, 'addDetail'])->name('po.add-detail')->where('no_po', '.*');
+        Route::delete('/po/detail/{id}', [POController::class, 'removeDetail'])->name('po.remove-detail');
+        Route::post('/po/{no_po}/submit', [POController::class, 'submit'])->name('po.submit')->where('no_po', '.*');
+        Route::post('/po/{no_po}/approve', [POController::class, 'approve'])->name('po.approve')->where('no_po', '.*');
+        Route::post('/po/{no_po}/reject', [POController::class, 'reject'])->name('po.reject')->where('no_po', '.*');
     });
 
     // =============================================

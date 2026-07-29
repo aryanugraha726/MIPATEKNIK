@@ -12,7 +12,10 @@
     .gantt .bar-wrapper.bar-tugas .bar { fill: #10B981 !important; }
     .gantt .bar-wrapper.bar-tugas .bar-progress { fill: #059669 !important; }
 
-    .gantt .bar-label { font-weight: bold; font-size: 13px !important; fill: #fff !important; }
+    /* Sembunyikan label di dalam bar karena sekarang kita pakai sidebar */
+    .gantt .bar-label { 
+        display: none !important;
+    }
     
     /* Disable drag and resize visually */
     .gantt .handle-group { display: none !important; }
@@ -91,10 +94,32 @@
     </div>
 
     <!-- Gantt Chart Container -->
-    <div class="bg-white rounded-lg shadow border border-gray-200 overflow-hidden p-4">
+    <div class="bg-white rounded-lg shadow border border-gray-200 overflow-hidden mb-8">
         @if(count($ganttTasks) > 0)
-            <div class="overflow-x-auto">
-                <svg id="gantt"></svg>
+            <div class="flex">
+                <!-- Sidebar Kiri untuk Nama Task -->
+                <div class="w-64 flex-shrink-0 border-r border-gray-200 bg-gray-50 z-10">
+                    <!-- Header Sidebar -->
+                    <div class="px-4 font-bold text-gray-700 text-sm flex items-center border-b border-gray-200 bg-gray-100" style="height: 50px;">
+                        Nama Tugas / Subproject
+                    </div>
+                    <!-- Daftar Task (Tinggi 48px = bar_height 30 + padding 18) -->
+                    @foreach($ganttTasks as $task)
+                        <div class="px-4 text-sm font-medium text-gray-800 truncate flex items-center" style="height: 48px; border-bottom: 1px solid #ebeff2;" title="{{ $task['name'] }}">
+                            @if(str_starts_with($task['id'], 'SUB-'))
+                                <span class="w-2 h-2 rounded-full bg-indigo-600 mr-2 flex-shrink-0"></span>
+                            @else
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 flex-shrink-0 ml-4"></span>
+                            @endif
+                            <span class="truncate">{{ $task['name'] }}</span>
+                        </div>
+                    @endforeach
+                </div>
+                
+                <!-- Chart SVG -->
+                <div class="flex-1 overflow-x-auto">
+                    <svg id="gantt"></svg>
+                </div>
             </div>
         @else
             <div class="py-12 text-center text-gray-500">
@@ -132,7 +157,7 @@
                 }
             });
 
-            // Matikan fungsi drag pada Frappe Gantt secara paksa
+            // Matikan fungsi drag pada Frappe Gantt secara paksa & jalankan highlight hari libur
             setTimeout(() => {
                 const bars = document.querySelectorAll('.gantt .bar-wrapper');
                 bars.forEach(bar => {
@@ -140,14 +165,57 @@
                     bar.addEventListener('touchstart', e => e.stopPropagation(), true);
                     bar.addEventListener('pointerdown', e => e.stopPropagation(), true);
                 });
+                highlightWeekends();
             }, 500);
         }
     });
+
+    // Fungsi untuk menandai (highlight) hari libur Sabtu & Minggu
+    function highlightWeekends() {
+        if(!window.gantt) return;
+        
+        // Hapus highlight lama jika ada
+        document.querySelectorAll('.weekend-highlight').forEach(el => el.remove());
+        
+        // Hanya gambar highlight di mode Day agar selaras dengan kolom hari
+        const viewMode = window.gantt.options.view_mode;
+        if(viewMode !== 'Day') return;
+        
+        const dates = window.gantt.dates;
+        const colWidth = window.gantt.options.column_width;
+        
+        const svg = document.getElementById('gantt');
+        const gridGroup = svg.querySelector('.grid');
+        if(!gridGroup || !dates) return;
+        
+        const header = svg.querySelector('.grid-header');
+        const ns = 'http://www.w3.org/2000/svg';
+        const svgHeight = svg.getAttribute('height') || svg.getBoundingClientRect().height;
+        
+        dates.forEach((date, i) => {
+            let day = date.getDay();
+            // 0 = Minggu, 6 = Sabtu
+            if(day === 0 || day === 6) { 
+                let rect = document.createElementNS(ns, 'rect');
+                rect.setAttribute('x', i * colWidth);
+                rect.setAttribute('y', 50); // 50px adalah header height
+                rect.setAttribute('width', colWidth);
+                rect.setAttribute('height', svgHeight - 50);
+                rect.setAttribute('fill', 'rgba(239, 68, 68, 0.1)'); // Warna merah transparan
+                rect.classList.add('weekend-highlight');
+                // Masukkan di bawah grid-header agar tidak menutupi teks header
+                gridGroup.insertBefore(rect, header);
+            }
+        });
+    }
 
     // Fungsi untuk mengubah view mode (Hari, Minggu, Bulan)
     function changeViewMode(mode) {
         if(window.gantt) {
             window.gantt.change_view_mode(mode);
+            
+            // Re-render highlight hari libur setelah mengubah view mode
+            setTimeout(highlightWeekends, 200);
             
             // Update styling button aktif
             const btns = document.querySelectorAll('button[type="button"]');

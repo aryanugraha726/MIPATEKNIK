@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 class BarangMasuk extends Model {
     protected $table = 'barang_masuk';
     protected $primaryKey = 'id_masuk';
+    public $incrementing = false;
     public $timestamps = false;
     protected $guarded = []; // Mengizinkan penyimpanan massal (Mass Assignment)
 

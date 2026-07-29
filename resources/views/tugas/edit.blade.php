@@ -49,9 +49,9 @@
 
             <div class="grid grid-cols-2 gap-4 mb-6">
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Karyawan (Opsional)</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Operator</label>
                     <select name="id_karyawan" class="shadow-sm border rounded w-full py-2 px-3 text-gray-700 bg-white focus:outline-none focus:ring focus:border-blue-300">
-                        <option value="">-- Pilih Karyawan --</option>
+                        <option value="">-- Pilih Operator --</option>
                         @foreach($karyawans as $k)
                             <option value="{{ $k->id_karyawan }}" {{ old('id_karyawan', $tugas->id_karyawan) == $k->id_karyawan ? 'selected' : '' }}>
                                 {{ $k->nm_karyawan }}
@@ -70,7 +70,7 @@
                         @endforeach
                     </select>
                 </div>
-                <p class="text-xs text-gray-500 col-span-2">Pilih Karyawan (jika dikerjakan internal) atau Vendor (jika dikerjakan pihak ketiga).</p>
+                <p class="text-xs text-gray-500 col-span-2">Pilih Operator (jika dikerjakan internal) atau Vendor (jika dikerjakan pihak ketiga).</p>
             </div>
 
             <div class="flex items-center justify-end">
