@@ -63,7 +63,7 @@
                 <p class="text-xs text-gray-500 mt-1">{{ $po->shippingAddress->alamat_mipa ?? '' }}</p>
             </div>
             <div>
-                <p class="text-gray-500 mb-1">Referensi Proyek (Job ID)</p>
+                <p class="text-gray-500 mb-1">Job ID</p>
                 <p class="font-medium text-gray-900">
                     @if($po->job_id)
                         JOB-{{ $po->job_id }} 

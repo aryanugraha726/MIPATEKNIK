@@ -8,6 +8,7 @@ class Vendor extends Model
 {
     protected $table = 'vendor';
     protected $primaryKey = 'id_vendor';
+    public $incrementing = false;
     public $timestamps = false;
     protected $guarded = [];
 }

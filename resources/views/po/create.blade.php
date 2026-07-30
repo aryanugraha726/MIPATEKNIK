@@ -70,9 +70,9 @@
                 </div>
 
                 <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Referensi Project (Job ID)</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Job ID</label>
                     <select name="job_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value="">-- Stock (Tanpa Referensi Project) --</option>
+                        <option value="">-- Stock --</option>
                         @foreach($projects as $p)
                             <option value="{{ $p->job_id }}" {{ old('job_id') == $p->job_id ? 'selected' : '' }}>
                                 JOB-{{ $p->job_id }} | {{ $p->nama_project }}
@@ -85,13 +85,13 @@
                     <div class="flex items-center">
                         <input type="checkbox" name="is_ppn" id="is_ppn" value="1" class="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" onchange="calculateGrandTotal()" {{ old('is_ppn') ? 'checked' : '' }}>
                         <label for="is_ppn" class="ml-2 block text-sm font-medium text-gray-700">
-                            Kenakan PPN (11%)
+                            PPN (11%)
                         </label>
                     </div>
                     <div class="flex items-center">
                         <input type="checkbox" name="is_pph" id="is_pph" value="1" class="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" onchange="calculateGrandTotal()" {{ old('is_pph') ? 'checked' : '' }}>
                         <label for="is_pph" class="ml-2 block text-sm font-medium text-gray-700">
-                            Potong PPh 23 (2%)
+                            PPh 23 (2%)
                         </label>
                     </div>
                 </div>
@@ -136,7 +136,12 @@
             <div class="p-6 border-b border-gray-200 bg-blue-50/50">
                 <div class="flex items-end gap-4">
                     <div class="flex-1">
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Pilih Barang</label>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-xs font-medium text-gray-700">Pilih Barang</label>
+                            <button type="button" onclick="openBarangModal()" class="text-[10px] bg-indigo-100 text-indigo-700 font-bold px-2 py-0.5 rounded hover:bg-indigo-200 transition">
+                                + Tambah Barang Baru
+                            </button>
+                        </div>
                         <select id="sel_barang" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm" onchange="updateHargaBeli()">
                             <option value="">-- Pilih Barang --</option>
                             @foreach($barangs as $b)
@@ -184,6 +189,67 @@
             <div id="hidden_inputs_container"></div>
         </div>
     </form>
+</div>
+
+<!-- Modal Tambah Master Barang -->
+<div id="barangModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 overflow-y-auto flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4">
+        <div class="flex justify-between items-center bg-indigo-600 text-white p-4 rounded-t-xl">
+            <h3 class="text-lg font-bold">Tambah Barang Baru</h3>
+            <button type="button" onclick="closeBarangModal()" class="text-white hover:text-gray-200 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        
+        <div class="p-6">
+            <div id="ajax_error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm"></div>
+            
+            <form id="formBarangAjax">
+                @csrf
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2 text-sm">ID Barang</label>
+                        <input type="text" id="ajax_id_barang" name="id_barang" placeholder="Otomatis terisi jika kosong" class="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2 text-sm">Nama Barang <span class="text-red-500">*</span></label>
+                        <input type="text" id="ajax_nama_barang" name="nama_barang" placeholder="Nama barang" class="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2 text-sm">Kategori <span class="text-red-500">*</span></label>
+                            <select id="ajax_id_kategori" name="id_kategori" class="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required onchange="generateAjaxId(this.value)">
+                                <option value="" disabled selected>-- Pilih --</option>
+                                @foreach($kategoris as $kategori)
+                                    <option value="{{ $kategori->id_kategori }}">{{ $kategori->nama_kategori }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2 text-sm">Satuan <span class="text-red-500">*</span></label>
+                            <select id="ajax_id_satuan" name="id_satuan" class="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                                <option value="" disabled selected>-- Pilih --</option>
+                                @foreach($satuans as $satuan)
+                                    <option value="{{ $satuan->id_satuan }}">{{ $satuan->nama_satuan }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2 text-sm">Harga (Rp) <span class="text-red-500">*</span></label>
+                        <input type="number" id="ajax_harga" name="harga" min="0" class="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-end space-x-3 border-t pt-4">
+                    <button type="button" onclick="closeBarangModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300">Batal</button>
+                    <button type="button" onclick="submitBarangAjax()" id="btnSubmitAjax" class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 flex items-center">
+                        <span id="btnTextAjax">Simpan & Pilih</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -378,5 +444,106 @@
 
     // Initial render
     renderTable();
+
+    // --- Modal & AJAX Logic ---
+    function openBarangModal() {
+        document.getElementById('barangModal').classList.remove('hidden');
+        document.getElementById('ajax_error').classList.add('hidden');
+        document.getElementById('formBarangAjax').reset();
+    }
+
+    function closeBarangModal() {
+        document.getElementById('barangModal').classList.add('hidden');
+    }
+
+    function generateAjaxId(kategoriId) {
+        if(!kategoriId) return;
+        
+        var inputId = document.getElementById('ajax_id_barang');
+        var lastAuto = inputId.getAttribute('data-last-auto') || '';
+
+        if(inputId.value !== '' && inputId.value !== lastAuto) return;
+
+        fetch('/barang/next-id/' + kategoriId)
+            .then(response => response.json())
+            .then(data => {
+                if(data.next_id) {
+                    inputId.value = data.next_id;
+                    inputId.placeholder = data.next_id;
+                    inputId.setAttribute('data-last-auto', data.next_id);
+                }
+            })
+            .catch(error => console.error('Error fetching next ID:', error));
+    }
+
+    function submitBarangAjax() {
+        var btn = document.getElementById('btnSubmitAjax');
+        var btnText = document.getElementById('btnTextAjax');
+        var errorBox = document.getElementById('ajax_error');
+        
+        var id_barang = document.getElementById('ajax_id_barang').value;
+        var nama_barang = document.getElementById('ajax_nama_barang').value;
+        var id_kategori = document.getElementById('ajax_id_kategori').value;
+        var id_satuan = document.getElementById('ajax_id_satuan').value;
+        var harga = document.getElementById('ajax_harga').value;
+        var _token = document.querySelector('input[name="_token"]').value;
+
+        if(!nama_barang || !id_kategori || !id_satuan || !harga) {
+            errorBox.textContent = 'Harap isi semua kolom bertanda *';
+            errorBox.classList.remove('hidden');
+            return;
+        }
+
+        btn.disabled = true;
+        btnText.textContent = 'Menyimpan...';
+        errorBox.classList.add('hidden');
+
+        fetch("{{ route('barang.storeAjax') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': _token,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                id_barang: id_barang,
+                nama_barang: nama_barang,
+                id_kategori: id_kategori,
+                id_satuan: id_satuan,
+                harga: harga
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                var select = document.getElementById('sel_barang');
+                var option = document.createElement("option");
+                var satuanNama = data.barang.satuan ? data.barang.satuan.nama_satuan : data.barang.id_satuan;
+                
+                option.text = data.barang.id_barang + " - " + data.barang.nama_barang + " (Master: Rp " + formatRupiah(data.barang.harga) + "/" + satuanNama + ")";
+                option.value = data.barang.id_barang;
+                option.setAttribute('data-name', data.barang.nama_barang);
+                option.setAttribute('data-price', data.barang.harga);
+                option.setAttribute('data-satuan', satuanNama);
+                
+                select.add(option);
+                select.value = data.barang.id_barang;
+                
+                closeBarangModal();
+                updateHargaBeli(); 
+            } else {
+                errorBox.textContent = data.message || 'Terjadi kesalahan validasi.';
+                errorBox.classList.remove('hidden');
+            }
+        })
+        .catch(error => {
+            errorBox.textContent = 'Terjadi kesalahan sistem.';
+            errorBox.classList.remove('hidden');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btnText.textContent = 'Simpan & Pilih';
+        });
+    }
 </script>
 @endsection

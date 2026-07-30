@@ -21,7 +21,10 @@ class VendorController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_vendor' => 'required|string|max:20',
+            'nama_vendor' => 'required|string|max:255',
+            'alamat_vendor' => 'nullable|string',
+            'phone_vendor' => 'nullable|string|max:255',
+            'cp_vendor' => 'nullable|string|max:255',
         ]);
         
         $newId = Vendor::max('id_vendor') + 1;
@@ -29,6 +32,9 @@ class VendorController extends Controller
         Vendor::create([
             'id_vendor' => $newId ?: 1,
             'nama_vendor' => $request->nama_vendor,
+            'alamat_vendor' => $request->alamat_vendor,
+            'phone_vendor' => $request->phone_vendor,
+            'cp_vendor' => $request->cp_vendor,
         ]);
 
         return redirect()->route('vendor.index')->with('success', 'Vendor berhasil ditambahkan');
@@ -43,12 +49,18 @@ class VendorController extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate([
-            'nama_vendor' => 'required|string|max:20',
+            'nama_vendor' => 'required|string|max:255',
+            'alamat_vendor' => 'nullable|string',
+            'phone_vendor' => 'nullable|string|max:255',
+            'cp_vendor' => 'nullable|string|max:255',
         ]);
 
         $vendor = Vendor::findOrFail($id);
         $vendor->update([
             'nama_vendor' => $request->nama_vendor,
+            'alamat_vendor' => $request->alamat_vendor,
+            'phone_vendor' => $request->phone_vendor,
+            'cp_vendor' => $request->cp_vendor,
         ]);
 
         return redirect()->route('vendor.index')->with('success', 'Vendor berhasil diupdate');

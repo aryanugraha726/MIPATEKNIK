@@ -44,8 +44,8 @@
                 <thead class="bg-red-50 border-b border-red-100 text-gray-700">
                     <tr>
                         <th class="py-3 px-4 text-left font-semibold text-sm">ID Keluar</th>
-                        <th class="py-3 px-4 text-left font-semibold text-sm">Tanggal</th>
                         <th class="py-3 px-4 text-left font-semibold text-sm">Barang</th>
+                        <th class="py-3 px-4 text-left font-semibold text-sm">Tanggal</th>
                         <th class="py-3 px-4 text-left font-semibold text-sm">Project</th>
                         <th class="py-3 px-4 text-center font-semibold text-sm">Jumlah</th>
                         <th class="py-3 px-4 text-left font-semibold text-sm">Keterangan</th>
@@ -55,11 +55,11 @@
                     @forelse($keluar as $item)
                         <tr class="hover:bg-gray-50 transition">
                             <td class="py-3 px-4 text-sm font-medium text-gray-900">OUT-{{ $item->id_keluar }}</td>
-                            <td class="py-3 px-4 text-sm">{{ date('d M Y', strtotime($item->tgl_keluar)) }}</td>
                             <td class="py-3 px-4 text-sm">
                                 <button onclick="showBarangDetail('{{ $item->id_barang }}')" class="font-bold text-red-600 hover:text-red-800 underline focus:outline-none transition">{{ $item->id_barang }}</button><br>
                                 {{ $item->barang->nama_barang ?? 'Barang tidak ditemukan' }}
                             </td>
+                            <td class="py-3 px-4 text-sm">{{ date('d M Y', strtotime($item->tgl_keluar)) }}</td>
                             <td class="py-3 px-4 text-sm">
                                 <button onclick="showProjectDetail('{{ $item->job_id }}')" class="font-bold text-gray-700 hover:text-gray-900 underline focus:outline-none transition">{{ $item->job_id }}</button><br>
                                 {{ $item->project->nama_project ?? 'Nama project tidak ditemukan' }}

@@ -43,8 +43,10 @@ class POController extends Controller
         $shippingAddresses = ShippingAddress::all();
         $projects = Project::all();
         $barangs = Barang::with('satuan')->get();
+        $kategoris = \App\Models\KategoriBarang::all();
+        $satuans = \App\Models\Satuan::all();
 
-        return view('po.create', compact('vendors', 'shippingAddresses', 'projects', 'barangs'));
+        return view('po.create', compact('vendors', 'shippingAddresses', 'projects', 'barangs', 'kategoris', 'satuans'));
     }
 
     public function store(Request $request)

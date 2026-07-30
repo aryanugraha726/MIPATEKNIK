@@ -13,8 +13,8 @@
                 <thead class="bg-blue-50 border-b border-blue-100 text-gray-700">
                     <tr>
                         <th class="py-3 px-4 text-left font-semibold text-sm">ID Masuk</th>
-                        <th class="py-3 px-4 text-left font-semibold text-sm">Tanggal</th>
                         <th class="py-3 px-4 text-left font-semibold text-sm">Barang</th>
+                        <th class="py-3 px-4 text-left font-semibold text-sm">Tanggal</th>
                         <th class="py-3 px-4 text-center font-semibold text-sm">Jumlah</th>
                         <th class="py-3 px-4 text-left font-semibold text-sm">Keterangan</th>
                     </tr>
