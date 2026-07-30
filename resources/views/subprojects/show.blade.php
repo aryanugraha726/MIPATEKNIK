@@ -70,6 +70,7 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Tugas</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jadwal</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sisa Waktu</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelaksana (Karyawan/Vendor)</th>
                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
@@ -84,6 +85,14 @@
                         {{ date('d M Y', strtotime($t->start_tugas)) }} - {{ date('d M Y', strtotime($t->target_tugas)) }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        @php
+                            $diff = now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($t->target_tugas)->startOfDay(), false);
+                            $color = $diff < 0 ? 'text-red-600 font-bold' : ($diff <= 7 ? 'text-yellow-600 font-bold' : 'text-green-600 font-bold');
+                            $text = $diff < 0 ? 'Terlambat ' . abs(intval($diff)) . ' hari' : ($diff == 0 ? 'Hari Ini' : intval($diff) . ' Hari');
+                        @endphp
+                        <span class="{{ $color }}">{{ $text }}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                         @if($t->id_karyawan)
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Internal: {{ $t->karyawan->nm_karyawan }}</span>
                         @elseif($t->id_vendor)
@@ -95,16 +104,14 @@
                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                         <form action="{{ route('tugas.toggle-status', $t->tugas_id) }}" method="POST" class="inline">
                             @csrf
-                            @if($t->is_completed)
-                                <button type="submit" title="Tandai Belum Selesai" class="text-green-600 hover:text-gray-500 transition-colors">
-                                    <svg class="w-6 h-6 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    <span class="block text-xs mt-1 text-green-700">Selesai</span>
-                                </button>
-                            @else
-                                <button type="submit" title="Tandai Selesai" class="text-gray-400 hover:text-green-500 transition-colors">
-                                    <svg class="w-6 h-6 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    <span class="block text-xs mt-1 text-gray-500">To Do</span>
-                                </button>
+                            <input type="checkbox" onchange="this.form.submit()" {{ $t->is_completed ? 'checked' : '' }} class="w-5 h-5 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 focus:ring-2 cursor-pointer transition">
+                            <span class="block text-xs mt-1 font-semibold {{ $t->is_completed ? 'text-green-600' : 'text-gray-500' }}">
+                                {{ $t->is_completed ? 'Selesai' : 'To Do' }}
+                            </span>
+                            @if($t->is_completed && $t->tanggal_selesai)
+                            <span class="block text-xs mt-1 text-gray-500 italic">
+                                {{ date('d M Y', strtotime($t->tanggal_selesai)) }}
+                            </span>
                             @endif
                         </form>
                     </td>
@@ -119,7 +126,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="px-6 py-8 text-center text-gray-500 italic">Subproject ini belum / tidak memiliki rincian tugas.</td>
+                    <td colspan="7" class="px-6 py-8 text-center text-gray-500 italic">Subproject ini belum / tidak memiliki rincian tugas.</td>
                 </tr>
                 @endforelse
             </tbody>

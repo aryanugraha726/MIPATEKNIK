@@ -100,7 +100,50 @@ class SubprojectController extends Controller
     {
         $subproject = Subproject::findOrFail($id);
         $projectId = $subproject->job_id;
-        $subproject->delete();
-        return redirect()->route('projects.show', $projectId)->with('success', 'Subproject berhasil dihapus');
+        
+        try {
+            \Illuminate\Support\Facades\DB::beginTransaction();
+            
+            // Hapus semua tugas yang bernaung di subproject ini
+            $subproject->tugas()->delete();
+            
+            // Hapus subproject
+            $subproject->delete();
+            
+            \Illuminate\Support\Facades\DB::commit();
+            
+            return redirect()->route('projects.show', $projectId)->with('success', 'Subproject beserta seluruh tugas di dalamnya berhasil dihapus');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return redirect()->route('projects.show', $projectId)->with('error', 'Gagal menghapus Subproject.');
+        }
+    }
+
+    public function toggleStatus($id)
+    {
+        $subproject = Subproject::findOrFail($id);
+        
+        // Cek Role
+        $user = auth()->user();
+        $roles = $user->roles();
+        
+        // Karyawan biasa hanya bisa update subproject miliknya
+        if (in_array('KARYAWAN', $roles) && empty(array_intersect(['ADMIN', 'PPIC'], $roles))) {
+            if ($subproject->id_karyawan !== $user->id_karyawan) {
+                return redirect()->back()->with('error', 'Anda tidak berhak mengubah status subproject ini.');
+            }
+        } elseif (empty(array_intersect(['ADMIN', 'PPIC'], $roles))) {
+            return redirect()->back()->with('error', 'Anda tidak berhak mengubah status subproject ini.');
+        }
+
+        $subproject->is_completed = !$subproject->is_completed;
+        if ($subproject->is_completed) {
+            $subproject->tanggal_selesai = now()->toDateString();
+        } else {
+            $subproject->tanggal_selesai = null;
+        }
+        $subproject->save();
+
+        return redirect()->back()->with('success', 'Status subproject berhasil diperbarui.');
     }
 }

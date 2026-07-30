@@ -102,6 +102,7 @@ Route::middleware(['auth'])->group(function () {
     // TOGGLE STATUS TUGAS (role: ADMIN, PPIC, KARYAWAN)
     // =============================================
     Route::middleware('role:ADMIN,PPIC,KARYAWAN')->group(function () {
+        Route::post('/subprojects/{id}/toggle-status', [SubprojectController::class, 'toggleStatus'])->name('subprojects.toggle-status');
         Route::post('/tugas/{id}/toggle-status', [TugasController::class, 'toggleStatus'])->name('tugas.toggle-status');
     });
 

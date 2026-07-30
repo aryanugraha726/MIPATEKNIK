@@ -66,6 +66,7 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Subproject</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jadwal</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sisa Waktu</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Penanggung Jawab</th>
                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                 </tr>
@@ -77,6 +78,14 @@
                     <td class="px-6 py-4 text-sm text-gray-800 font-medium">{{ $sub->nama_subproject }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                         {{ date('d M Y', strtotime($sub->start_subproject)) }} - {{ date('d M Y', strtotime($sub->target_subproject)) }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        @php
+                            $diff = now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($sub->target_subproject)->startOfDay(), false);
+                            $color = $diff < 0 ? 'text-red-600 font-bold' : ($diff <= 7 ? 'text-yellow-600 font-bold' : 'text-green-600 font-bold');
+                            $text = $diff < 0 ? 'Terlambat ' . abs(intval($diff)) . ' hari' : ($diff == 0 ? 'Hari Ini' : intval($diff) . ' Hari');
+                        @endphp
+                        <span class="{{ $color }}">{{ $text }}</span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                         {{ $sub->karyawan->nm_karyawan ?? 'N/A' }}
@@ -93,7 +102,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="px-6 py-8 text-center text-gray-500 italic">Belum ada subproject untuk project ini.</td>
+                    <td colspan="6" class="px-6 py-8 text-center text-gray-500 italic">Belum ada subproject untuk project ini.</td>
                 </tr>
                 @endforelse
             </tbody>

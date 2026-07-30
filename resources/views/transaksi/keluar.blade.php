@@ -48,6 +48,7 @@
                         <th class="py-3 px-4 text-left font-semibold text-sm">Tanggal</th>
                         <th class="py-3 px-4 text-left font-semibold text-sm">Project</th>
                         <th class="py-3 px-4 text-center font-semibold text-sm">Jumlah</th>
+                        <th class="py-3 px-4 text-left font-semibold text-sm">Satuan</th>
                         <th class="py-3 px-4 text-left font-semibold text-sm">Keterangan</th>
                     </tr>
                 </thead>
@@ -64,16 +65,17 @@
                                 <button onclick="showProjectDetail('{{ $item->job_id }}')" class="font-bold text-gray-700 hover:text-gray-900 underline focus:outline-none transition">{{ $item->job_id }}</button><br>
                                 {{ $item->project->nama_project ?? 'Nama project tidak ditemukan' }}
                             </td>
-                            <td class="py-3 px-4 text-center">
-                                <span class="bg-red-100 text-red-800 font-bold px-3 py-1 rounded-full text-xs">
-                                    -{{ $item->jumlah_keluar }}
-                                </span>
+                            <td class="py-3 px-4 text-center text-sm font-bold text-red-600">
+                                -{{ $item->jumlah_keluar }}
+                            </td>
+                            <td class="py-3 px-4 text-sm text-gray-600">
+                                {{ $item->barang->satuan->nama_satuan ?? '-' }}
                             </td>
                             <td class="py-3 px-4 text-sm text-gray-500">{{ $item->ket_keluar ?: '-' }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-8 text-center text-gray-500 italic">Belum ada riwayat barang keluar.</td>
+                            <td colspan="7" class="py-8 text-center text-gray-500 italic">Belum ada riwayat barang keluar.</td>
                         </tr>
                     @endforelse
                 </tbody>

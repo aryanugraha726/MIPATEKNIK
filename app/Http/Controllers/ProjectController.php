@@ -12,7 +12,7 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        $projects = Project::with('management.karyawan')->orderBy('start_project', 'desc')->get();
+        $projects = Project::with(['management.karyawan', 'subprojects.karyawan', 'subprojects.management.karyawan', 'subprojects.tugas.karyawan', 'subprojects.tugas.vendor'])->orderBy('start_project', 'desc')->get();
         return view('projects.index', compact('projects'));
     }
 
@@ -82,7 +82,29 @@ class ProjectController extends Controller
     public function destroy($id)
     {
         $project = Project::findOrFail($id);
-        $project->delete();
-        return redirect()->route('projects.index')->with('success', 'Project berhasil dihapus');
+        
+        try {
+            \Illuminate\Support\Facades\DB::beginTransaction();
+            
+            // Ambil semua ID subproject dari project ini
+            $subprojectIds = $project->subprojects()->pluck('subproject_id');
+            
+            // Hapus semua tugas yang bernaung di subproject tersebut
+            \App\Models\Tugas::whereIn('subproject_id', $subprojectIds)->delete();
+            
+            // Hapus semua subproject
+            $project->subprojects()->delete();
+            
+            // Hapus project
+            $project->delete();
+            
+            \Illuminate\Support\Facades\DB::commit();
+            
+            return redirect()->route('projects.index')->with('success', 'Project beserta seluruh Subproject dan Tugas di dalamnya berhasil dihapus');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            \Illuminate\Support\Facades\Log::error('Gagal menghapus project: ' . $e->getMessage());
+            return redirect()->route('projects.index')->with('error', 'Gagal menghapus Project. ' . $e->getMessage());
+        }
     }
 }

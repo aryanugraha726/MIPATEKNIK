@@ -19,14 +19,19 @@ class PPICController extends Controller
         $project = Project::with(['subprojects.tugas'])->findOrFail($id);
 
         $ganttTasks = [];
+        $subIndex = 1;
+        $maxEndDate = strtotime($project->target_project);
         
         // Add Subprojects
         foreach ($project->subprojects as $sub) {
+            $subEnd = strtotime($sub->target_subproject);
+            if ($subEnd > $maxEndDate) $maxEndDate = $subEnd;
+
             $ganttTasks[] = [
                 'id' => 'Subproject-' . $sub->subproject_id,
-                'name' => 'SP: ' . $sub->nama_subproject,
+                'name' => $subIndex . '. ' . $sub->nama_subproject,
                 'start' => date('Y-m-d', strtotime($sub->start_subproject)),
-                'end' => date('Y-m-d', strtotime($sub->target_subproject)),
+                'end' => date('Y-m-d', strtotime('+1 day', $subEnd)),
                 'progress' => 0, 
                 'dependencies' => '',
                 'custom_class' => 'bar-subproject'
@@ -34,17 +39,32 @@ class PPICController extends Controller
             
             // Add Tugas under this Subproject
             foreach ($sub->tugas as $tugas) {
+                $tugasEnd = strtotime($tugas->target_tugas);
+                if ($tugasEnd > $maxEndDate) $maxEndDate = $tugasEnd;
+
                 $ganttTasks[] = [
                     'id' => 'Tugas-' . $tugas->tugas_id,
-                    'name' => 'Tugas: ' . $tugas->tugas,
+                    'name' => $tugas->tugas,
                     'start' => date('Y-m-d', strtotime($tugas->start_tugas)),
-                    'end' => date('Y-m-d', strtotime($tugas->target_tugas)),
+                    'end' => date('Y-m-d', strtotime('+1 day', $tugasEnd)),
                     'progress' => 0,
                     'dependencies' => '',
                     'custom_class' => 'bar-tugas'
                 ];
             }
+            $subIndex++;
         }
+
+        // Add Project as the root task at the VERY BEGINNING of the array
+        array_unshift($ganttTasks, [
+            'id' => 'Project-' . $project->job_id,
+            'name' => $project->nama_project,
+            'start' => date('Y-m-d', strtotime($project->start_project)),
+            'end' => date('Y-m-d', strtotime('+1 day', $maxEndDate)),
+            'progress' => 0, 
+            'dependencies' => '',
+            'custom_class' => 'bar-project'
+        ]);
 
         return view('ppic.gantt', compact('project', 'ganttTasks'));
     }

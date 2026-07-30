@@ -172,6 +172,49 @@
                     });
                 }
             });
+
+            // Script untuk sinkronisasi Tanggal Mulai, Durasi (Hari), dan Target Selesai
+            const startInputs = document.querySelectorAll('.sync-start');
+            const durasiInputs = document.querySelectorAll('.sync-durasi');
+            const targetInputs = document.querySelectorAll('.sync-target');
+
+            for(let i = 0; i < startInputs.length; i++){
+                const startInput = startInputs[i];
+                const durasiInput = durasiInputs[i];
+                const targetInput = targetInputs[i];
+
+                function updateTarget() {
+                    if (startInput.value && durasiInput.value) {
+                        const startDate = new Date(startInput.value);
+                        startDate.setDate(startDate.getDate() + parseInt(durasiInput.value));
+                        targetInput.value = startDate.toISOString().split('T')[0];
+                    }
+                }
+
+                function updateDurasi() {
+                    if (startInput.value && targetInput.value) {
+                        const startDate = new Date(startInput.value);
+                        const targetDate = new Date(targetInput.value);
+                        const diffTime = targetDate - startDate;
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        if (diffDays >= 1) {
+                            durasiInput.value = diffDays;
+                        } else {
+                            durasiInput.value = 1;
+                            updateTarget();
+                        }
+                    }
+                }
+
+                startInput.addEventListener('change', updateTarget);
+                durasiInput.addEventListener('input', updateTarget);
+                targetInput.addEventListener('change', updateDurasi);
+                
+                // Inisialisasi awal
+                if(startInput.value && durasiInput.value && !targetInput.value) {
+                    updateTarget();
+                }
+            }
         });
     </script>
 </body>

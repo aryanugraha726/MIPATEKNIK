@@ -114,6 +114,11 @@ class TugasController extends Controller
         }
 
         $tugas->is_completed = !$tugas->is_completed;
+        if ($tugas->is_completed) {
+            $tugas->tanggal_selesai = now()->toDateString();
+        } else {
+            $tugas->tanggal_selesai = null;
+        }
         $tugas->save();
 
         return redirect()->back()->with('success', 'Status tugas berhasil diperbarui.');

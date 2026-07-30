@@ -4,7 +4,7 @@
 <div class="max-w-7xl mx-auto">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-800 border-l-4 border-yellow-500 pl-3">Dashboard PPIC</h1>
-        <p class="text-gray-500 text-sm">Pilih proyek untuk melihat visualisasi jadwal (Gantt Chart)</p>
+        <p class="text-gray-500 text-sm">Pilih proyek untuk melihat visualisasi jadwal proyek</p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -22,11 +22,11 @@
             <div class="text-sm text-gray-600 mb-4 space-y-1">
                 <p><strong>Mulai:</strong> {{ date('d M Y', strtotime($p->start_project)) }}</p>
                 <p><strong>Target Selesai:</strong> {{ date('d M Y', strtotime($p->target_project)) }}</p>
-                <p><strong>PIC:</strong> {{ $p->management->karyawan->nm_karyawan ?? '-' }}</p>
+                <p><strong>Penanggung Jawab:</strong> {{ $p->management->karyawan->nm_karyawan ?? '-' }}</p>
             </div>
 
             <a href="{{ route('ppic.gantt', $p->job_id) }}" class="block w-full text-center bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition">
-                Lihat Timeline (Gantt) &rarr;
+                Lihat Jadwal Proyek
             </a>
         </div>
         @empty

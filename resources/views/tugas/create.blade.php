@@ -37,15 +37,19 @@
                 <input type="text" name="tugas" value="{{ old('tugas') }}" class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
                     <label class="block text-gray-700 text-sm font-bold mb-2">Tanggal Mulai</label>
-                    <input type="date" name="start_tugas" value="{{ old('start_tugas') }}" class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
+                    <input type="date" name="start_tugas" value="{{ old('start_tugas', isset($subproject) ? $subproject->start_subproject : '') }}" class="sync-start shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
                 </div>
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Durasi Pengerjaan (Hari)</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Target Selesai</label>
+                    <input type="date" name="target_tugas" value="{{ old('target_tugas') }}" class="sync-target shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Durasi Pengerjaan</label>
                     <div class="flex items-center">
-                        <input type="number" name="durasi_hari" min="1" value="{{ old('durasi_hari', 1) }}" class="shadow-sm appearance-none border rounded-l w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
+                        <input type="number" name="durasi_hari" min="1" value="{{ old('durasi_hari', 1) }}" class="sync-durasi shadow-sm appearance-none border rounded-l w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
                         <span class="bg-gray-100 border border-l-0 border-gray-300 rounded-r py-2 px-4 text-gray-600">Hari</span>
                     </div>
                 </div>

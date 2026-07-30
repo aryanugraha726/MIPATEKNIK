@@ -13,9 +13,10 @@
                 <thead class="bg-blue-50 border-b border-blue-100 text-gray-700">
                     <tr>
                         <th class="py-3 px-4 text-left font-semibold text-sm">ID Masuk</th>
-                        <th class="py-3 px-4 text-left font-semibold text-sm">Barang</th>
                         <th class="py-3 px-4 text-left font-semibold text-sm">Tanggal</th>
+                        <th class="py-3 px-4 text-left font-semibold text-sm">Barang</th>
                         <th class="py-3 px-4 text-center font-semibold text-sm">Jumlah</th>
+                        <th class="py-3 px-4 text-left font-semibold text-sm">Satuan</th>
                         <th class="py-3 px-4 text-left font-semibold text-sm">Keterangan</th>
                     </tr>
                 </thead>
@@ -28,16 +29,17 @@
                                 <span class="font-bold text-blue-600">{{ $item->id_barang }}</span><br>
                                 {{ $item->barang->nama_barang ?? 'Barang tidak ditemukan' }}
                             </td>
-                            <td class="py-3 px-4 text-center">
-                                <span class="bg-green-100 text-green-800 font-bold px-3 py-1 rounded-full text-xs">
-                                    +{{ $item->jml_masuk }}
-                                </span>
+                            <td class="py-3 px-4 text-center text-sm font-bold text-green-600">
+                                +{{ $item->jml_masuk }}
+                            </td>
+                            <td class="py-3 px-4 text-sm text-gray-600">
+                                {{ $item->barang->satuan->nama_satuan ?? '-' }}
                             </td>
                             <td class="py-3 px-4 text-sm text-gray-500">{{ $item->ket_masuk ?: '-' }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="py-8 text-center text-gray-500 italic">Belum ada riwayat barang masuk.</td>
+                            <td colspan="6" class="py-8 text-center text-gray-500 italic">Belum ada riwayat barang masuk.</td>
                         </tr>
                     @endforelse
                 </tbody>

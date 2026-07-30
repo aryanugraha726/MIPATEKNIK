@@ -172,7 +172,7 @@ class TransactionController extends Controller
     // Menampilkan Riwayat Barang Masuk
     public function historyMasuk()
     {
-        $masuk = BarangMasuk::with('barang')
+        $masuk = BarangMasuk::with('barang.satuan')
             ->orderBy('tgl_masuk', 'desc')
             ->get();
 
@@ -182,7 +182,7 @@ class TransactionController extends Controller
     // Menampilkan Riwayat Barang Keluar
     public function historyKeluar(Request $request)
     {
-        $query = BarangKeluar::with(['barang', 'project']);
+        $query = BarangKeluar::with(['barang.satuan', 'project']);
 
         if ($request->filled('job_id')) {
             $query->where('job_id', $request->job_id);
