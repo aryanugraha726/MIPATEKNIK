@@ -20,19 +20,27 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <form action="{{ route('material-requests.store') }}" method="POST" class="p-6">
             @csrf
-            <div class="grid grid-cols-2 gap-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Permintaan</label>
+                    <select name="kategori" id="kategoriSelect" required class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="Project" {{ old('kategori') == 'Project' ? 'selected' : '' }}>Project</option>
+                        <option value="Internal" {{ old('kategori') == 'Internal' ? 'selected' : '' }}>Internal</option>
+                        <option value="Stock" {{ old('kategori') == 'Stock' ? 'selected' : '' }}>Stock</option>
+                    </select>
+                </div>
+                <div id="jobIdContainer">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Project (Job ID)</label>
-                    <select name="job_id" required class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="job_id" id="jobIdSelect" required class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">-- Pilih Job ID --</option>
                         @foreach($jobIds as $jobId)
-                            <option value="{{ $jobId }}">{{ $jobId }}</option>
+                            <option value="{{ $jobId }}" {{ old('job_id') == $jobId ? 'selected' : '' }}>{{ $jobId }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Request</label>
-                    <input type="date" name="tanggal" required value="{{ date('Y-m-d') }}" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <input type="date" name="tanggal" required value="{{ old('tanggal', date('Y-m-d')) }}" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
             </div>
 
@@ -113,6 +121,7 @@
         // Initialize TomSelect for the new select dropdown
         const ts = new TomSelect(selectEl, {
             create: false,
+            dropdownParent: 'body',
             // Custom render for the options to highlight NEW_ITEM
             render: {
                 option: function(data, escape) {
@@ -161,5 +170,26 @@
     
     // Add first row default
     addRow();
+
+    // Toggle Job ID based on Kategori
+    const kategoriSelect = document.getElementById('kategoriSelect');
+    const jobIdContainer = document.getElementById('jobIdContainer');
+    const jobIdSelect = document.getElementById('jobIdSelect');
+
+    function toggleJobId() {
+        if (kategoriSelect.value === 'Project') {
+            jobIdContainer.classList.remove('hidden');
+            jobIdSelect.setAttribute('required', 'required');
+        } else {
+            jobIdContainer.classList.add('hidden');
+            jobIdSelect.removeAttribute('required');
+            jobIdSelect.value = '';
+        }
+    }
+
+    kategoriSelect.addEventListener('change', toggleJobId);
+    
+    // Initial check on load (for old input validation error cases)
+    toggleJobId();
 </script>
 @endsection

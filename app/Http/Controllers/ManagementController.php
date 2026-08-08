@@ -11,22 +11,20 @@ class ManagementController extends Controller
 {
     public function index()
     {
-        $managements = Management::with(['karyawan', 'divisi'])->get();
+        $managements = Management::with('karyawan.divisi')->get();
         return view('management.index', compact('managements'));
     }
 
     public function create()
     {
         $karyawans = Karyawan::all();
-        $divisis = Divisi::all();
-        return view('management.create', compact('karyawans', 'divisis'));
+        return view('management.create', compact('karyawans'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'id_karyawan' => 'required|integer',
-            'id_divisi' => 'required|integer',
         ]);
         
         $newId = Management::max('management_id') + 1;
@@ -34,7 +32,6 @@ class ManagementController extends Controller
         Management::create([
             'management_id' => $newId ?: 1,
             'id_karyawan' => $request->id_karyawan,
-            'id_divisi' => $request->id_divisi,
         ]);
 
         return redirect()->route('management.index')->with('success', 'Management PIC berhasil ditambahkan');
@@ -44,21 +41,18 @@ class ManagementController extends Controller
     {
         $management = Management::findOrFail($id);
         $karyawans = Karyawan::all();
-        $divisis = Divisi::all();
-        return view('management.edit', compact('management', 'karyawans', 'divisis'));
+        return view('management.edit', compact('management', 'karyawans'));
     }
 
     public function update(Request $request, string $id)
     {
         $request->validate([
             'id_karyawan' => 'required|integer',
-            'id_divisi' => 'required|integer',
         ]);
 
         $management = Management::findOrFail($id);
         $management->update([
             'id_karyawan' => $request->id_karyawan,
-            'id_divisi' => $request->id_divisi,
         ]);
 
         return redirect()->route('management.index')->with('success', 'Management PIC berhasil diupdate');

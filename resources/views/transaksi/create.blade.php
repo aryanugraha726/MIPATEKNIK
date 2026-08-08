@@ -84,52 +84,107 @@
                     </div>
                 </div>
 
-                <!-- SECTION BARANG KELUAR (MANUAL) -->
                 <div id="section_keluar" style="display: none;">
-                    <div class="mb-6">
-                        <div class="flex justify-between items-center mb-2">
-                            <label class="block text-gray-700 font-semibold text-sm uppercase tracking-wide">Pilih Barang <span class="text-red-500">*</span></label>
+                    <div class="mb-6 flex gap-4 border-b pb-4 flex-wrap">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="sumber_keluar" value="manual" class="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300" checked onchange="toggleSumberKeluar()">
+                            <span class="text-sm font-semibold uppercase tracking-wide text-gray-700">Project / Manual</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="sumber_keluar" value="internal" class="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300" onchange="toggleSumberKeluar()">
+                            <span class="text-sm font-semibold uppercase tracking-wide text-gray-700">Internal</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="sumber_keluar" value="stok" class="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300" onchange="toggleSumberKeluar()">
+                            <span class="text-sm font-semibold uppercase tracking-wide text-gray-700">Stok</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="sumber_keluar" value="mr" class="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300" onchange="toggleSumberKeluar()">
+                            <span class="text-sm font-semibold uppercase tracking-wide text-gray-700">Dari Nota MR</span>
+                        </label>
+                    </div>
+
+                    <!-- KELUAR MANUAL -->
+                    <div id="keluar_manual">
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="block text-gray-700 font-semibold text-sm uppercase tracking-wide">Pilih Barang <span class="text-red-500">*</span></label>
+                            </div>
+                            <select name="id_barang" id="id_barang" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50" onchange="updateHarga()">
+                                <option value="" disabled selected data-harga="0">-- Ketik / Pilih Barang --</option>
+                                @foreach($barangs as $brg)
+                                    <option value="{{ $brg->id_barang }}" data-harga="{{ $brg->harga }}">{{ $brg->id_barang }} - {{ $brg->nama_barang }}</option>
+                                @endforeach
+                            </select>
                         </div>
-                        <select name="id_barang" id="id_barang" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50" onchange="updateHarga()">
-                            <option value="" disabled selected data-harga="0">-- Ketik / Pilih Barang --</option>
-                            @foreach($barangs as $brg)
-                                <option value="{{ $brg->id_barang }}" data-harga="{{ $brg->harga }}">{{ $brg->id_barang }} - {{ $brg->nama_barang }}</option>
-                            @endforeach
-                        </select>
-                    </div>
 
-                    <div id="harga_container" class="bg-yellow-50 p-4 rounded-lg border border-yellow-100 mb-6" style="display:none;">
-                        <label class="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide">Harga Satuan (Rp) <span class="text-red-500">*</span></label>
-                        <input type="number" name="harga_masuk" id="harga_masuk" min="0" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 bg-white" oninput="checkHarga()">
-                        <p id="harga_warning" class="text-xs text-yellow-700 mt-2 hidden font-medium">Harga berbeda dengan master. Barang ini akan masuk antrean FIFO otomatis (jika stok aktif masih ada).</p>
-                        <input type="hidden" id="harga_master">
-                    </div>
-
-                    <div id="project_container" class="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-6">
-                        <label class="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide">Tujuan Project <span class="text-red-500">*</span></label>
-                        <select name="job_id" id="job_id" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                            <option value="" disabled selected>-- Pilih Project Tujuan --</option>
-                            @foreach($projects as $proj)
-                                <option value="{{ $proj->job_id }}">{{ $proj->job_id }} - {{ $proj->nama_project }}</option>
-                            @endforeach
-                        </select>
-                        <p class="text-xs text-blue-600 mt-2">Wajib diisi jika barang dikeluarkan untuk kebutuhan project.</p>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div>
-                            <label class="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide">Tanggal Transaksi <span class="text-red-500">*</span></label>
-                            <input type="date" name="tanggal" id="tanggal" value="{{ date('Y-m-d') }}" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                        <div id="harga_container" class="bg-yellow-50 p-4 rounded-lg border border-yellow-100 mb-6" style="display:none;">
+                            <label class="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide">Harga Satuan (Rp) <span class="text-red-500">*</span></label>
+                            <input type="number" name="harga_masuk" id="harga_masuk" min="0" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 bg-white" oninput="checkHarga()">
+                            <p id="harga_warning" class="text-xs text-yellow-700 mt-2 hidden font-medium">Harga berbeda dengan master. Barang ini akan masuk antrean FIFO otomatis (jika stok aktif masih ada).</p>
+                            <input type="hidden" id="harga_master">
                         </div>
-                        <div>
+
+                        <div id="project_container" class="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-6">
+                            <label class="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide">Tujuan Project <span class="text-red-500">*</span></label>
+                            <select name="job_id" id="job_id" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                <option value="" disabled selected>-- Pilih Project Tujuan --</option>
+                                @foreach($projects as $proj)
+                                    <option value="{{ $proj->job_id }}">{{ $proj->job_id }} - {{ $proj->nama_project }}</option>
+                                @endforeach
+                            </select>
+                            <p class="text-xs text-blue-600 mt-2">Wajib diisi jika barang dikeluarkan untuk kebutuhan project.</p>
+                        </div>
+
+                        <div class="mb-6">
                             <label class="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide">Jumlah Barang <span class="text-red-500">*</span></label>
                             <input type="number" name="jumlah" id="jumlah" min="1" placeholder="Misal: 10" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
                         </div>
+
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide">Keterangan (Opsional)</label>
+                            <input type="text" name="keterangan" id="keterangan" maxlength="30" placeholder="Catatan tambahan (Maks 30 karakter)..." class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                        </div>
                     </div>
 
+                    <!-- KELUAR MR -->
+                    <div id="keluar_mr" style="display: none;">
+                        <div class="bg-indigo-50 border border-indigo-100 p-6 rounded-lg mb-6">
+                            <label class="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide">Pilih Nota Permintaan Barang <span class="text-red-500">*</span></label>
+                            <select name="no_nota" id="no_nota" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" onchange="fetchMrDetails()">
+                                <option value="">-- Pilih Nomor Nota --</option>
+                                @if(isset($mrs))
+                                    @foreach($mrs as $mr)
+                                        <option value="{{ $mr->no_nota }}">{{ $mr->no_nota }} - Job ID: {{ $mr->job_id ?? 'N/A' }} ({{ $mr->kategori }})</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        
+                        <div id="mr_details_container" style="display: none;" class="mb-6">
+                            <h3 class="font-bold text-gray-800 mb-3 border-b pb-2">Daftar Barang</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse bg-white border border-gray-200 rounded">
+                                    <thead>
+                                        <tr class="bg-gray-100 border-b border-gray-200 text-xs uppercase text-gray-600 tracking-wider">
+                                            <th class="p-3 font-medium text-center w-12">Cek</th>
+                                            <th class="p-3 font-medium">Nama Barang</th>
+                                            <th class="p-3 font-medium text-center">Qty Diminta</th>
+                                            <th class="p-3 font-medium text-center w-32">Qty Keluar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="mr_details_tbody" class="divide-y divide-gray-200 text-sm text-gray-700">
+                                        <!-- Items diisi via AJAX -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TANGGAL (Shared for MR and Manual) -->
                     <div>
-                        <label class="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide">Keterangan (Opsional)</label>
-                        <input type="text" name="keterangan" id="keterangan" maxlength="30" placeholder="Catatan tambahan (Maks 30 karakter)..." class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                        <label class="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide">Tanggal Transaksi <span class="text-red-500">*</span></label>
+                        <input type="date" name="tanggal" id="tanggal" value="{{ date('Y-m-d') }}" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
                     </div>
                 </div>
 
@@ -150,33 +205,30 @@
         const jenis = document.getElementById('jenis_transaksi').value;
         const sectionMasuk = document.getElementById('section_masuk');
         const sectionKeluar = document.getElementById('section_keluar');
+        const noPo = document.getElementById('no_po');
 
         if (jenis === 'masuk') {
             sectionMasuk.style.display = 'block';
             sectionKeluar.style.display = 'none';
-            document.getElementById('no_po').required = true;
-            document.getElementById('no_po').disabled = false;
+            noPo.required = true;
+            noPo.disabled = false;
+            if (noPo.tomselect) noPo.tomselect.enable();
             
             const inputs = sectionKeluar.querySelectorAll('input, select');
             inputs.forEach(el => {
                 el.required = false;
                 el.disabled = true;
+                if (el.tomselect) el.tomselect.disable();
             });
         } else {
             sectionMasuk.style.display = 'none';
             sectionKeluar.style.display = 'block';
-            document.getElementById('no_po').required = false;
-            document.getElementById('no_po').disabled = true;
+            noPo.required = false;
+            noPo.disabled = true;
+            if (noPo.tomselect) noPo.tomselect.disable();
             
-            const inputs = sectionKeluar.querySelectorAll('input, select');
-            inputs.forEach(el => {
-                el.disabled = false;
-            });
-            
-            document.getElementById('id_barang').required = true;
+            toggleSumberKeluar();
             document.getElementById('tanggal').required = true;
-            document.getElementById('jumlah').required = true;
-            toggleProject();
         }
     }
 
@@ -232,7 +284,123 @@
                 console.error('Error fetching PO details:', error);
             });
     }
+    function fetchMrDetails() {
+        const noNota = document.getElementById('no_nota').value;
+        const container = document.getElementById('mr_details_container');
+        const tbody = document.getElementById('mr_details_tbody');
+        
+        if (!noNota) {
+            container.style.display = 'none';
+            return;
+        }
 
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center p-4">Memuat data...</td></tr>';
+        container.style.display = 'block';
+
+        fetch(`/transaksi/mr-details/${noNota}`)
+            .then(response => response.json())
+            .then(data => {
+                tbody.innerHTML = '';
+                if(data.items.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-red-500">Tidak ada barang di Nota ini.</td></tr>';
+                    return;
+                }
+
+                data.items.forEach((item, index) => {
+                    const tr = document.createElement('tr');
+                    
+                    let checkboxHtml = '';
+                    let qtyInputHtml = '';
+                    
+                    if (item.is_unlisted) {
+                        checkboxHtml = `<input type="checkbox" disabled class="h-5 w-5 text-gray-400 border-gray-300 rounded cursor-not-allowed">`;
+                        qtyInputHtml = `<span class="text-xs text-red-500 font-semibold">Unlisted</span>`;
+                    } else {
+                        checkboxHtml = `<input type="checkbox" name="items_mr[]" value="${item.id_barang}" class="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer" onchange="toggleQtyInput(this, '${item.id_barang}')">`;
+                        qtyInputHtml = `<input type="number" name="qty_mr[${item.id_barang}]" id="qty_mr_${item.id_barang}" min="1" max="${item.qty_req}" value="${item.qty_req}" class="w-full border border-gray-300 p-2 rounded-lg text-sm bg-gray-100" disabled>`;
+                    }
+
+                    tr.className = 'hover:bg-blue-50';
+                    tr.innerHTML = `
+                        <td class="p-3 text-center">${checkboxHtml}</td>
+                        <td class="p-3">
+                            <div class="font-medium text-gray-900">${item.nama_barang}</div>
+                            <div class="text-xs text-gray-500">${item.is_unlisted ? 'Belum terdaftar' : item.id_barang}</div>
+                        </td>
+                        <td class="p-3 text-center font-bold">${item.qty_req} ${item.satuan}</td>
+                        <td class="p-3 text-center">${qtyInputHtml}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            })
+            .catch(error => {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-red-500">Gagal memuat data Permintaan Barang.</td></tr>';
+                console.error('Error fetching MR details:', error);
+            });
+    }
+
+    function toggleQtyInput(checkbox, idBarang) {
+        const input = document.getElementById(`qty_mr_${idBarang}`);
+        if (input) {
+            input.disabled = !checkbox.checked;
+            if (!checkbox.checked) {
+                input.classList.add('bg-gray-100');
+                input.classList.remove('bg-white');
+            } else {
+                input.classList.remove('bg-gray-100');
+                input.classList.add('bg-white');
+            }
+        }
+    }
+
+    function toggleSumberKeluar() {
+        const sumber = document.querySelector('input[name="sumber_keluar"]:checked').value;
+        const keluarManual = document.getElementById('keluar_manual');
+        const keluarMr = document.getElementById('keluar_mr');
+        
+        const manualInputs = keluarManual.querySelectorAll('input, select');
+        const mrInputs = keluarMr.querySelectorAll('input, select');
+        
+        if (sumber === 'manual' || sumber === 'internal' || sumber === 'stok') {
+            keluarManual.style.display = 'block';
+            keluarMr.style.display = 'none';
+            
+            manualInputs.forEach(el => {
+                el.disabled = false;
+                if (el.tomselect) el.tomselect.enable();
+            });
+            mrInputs.forEach(el => {
+                el.disabled = true;
+                if (el.tomselect) el.tomselect.disable();
+            });
+            
+            document.getElementById('id_barang').required = true;
+            document.getElementById('jumlah').required = true;
+            
+            // Set default keterangan for Internal and Stok
+            const ketInput = document.getElementById('keterangan');
+            if (sumber === 'internal') ketInput.value = 'Penggunaan Internal';
+            else if (sumber === 'stok') ketInput.value = 'Penyesuaian Stok';
+            else if (ketInput.value === 'Penggunaan Internal' || ketInput.value === 'Penyesuaian Stok') ketInput.value = '';
+            
+            toggleProject();
+        } else {
+            keluarManual.style.display = 'none';
+            keluarMr.style.display = 'block';
+            
+            manualInputs.forEach(el => {
+                el.required = false;
+                el.disabled = true;
+                if (el.tomselect) el.tomselect.disable();
+            });
+            mrInputs.forEach(el => {
+                el.disabled = false;
+                if (el.tomselect) el.tomselect.enable();
+            });
+            
+            document.getElementById('no_nota').required = true;
+        }
+    }
     function toggleProject() {
         var jenis = document.getElementById('jenis_transaksi').value;
         var projectContainer = document.getElementById('project_container');
@@ -241,8 +409,17 @@
         var hargaInput = document.getElementById('harga_masuk');
 
         if (jenis === 'keluar') {
-            projectContainer.style.display = 'block';
-            projectInput.setAttribute('required', 'required');
+            const sumberEl = document.querySelector('input[name="sumber_keluar"]:checked');
+            const sumber = sumberEl ? sumberEl.value : 'manual';
+            
+            if (sumber === 'internal' || sumber === 'stok' || sumber === 'mr') {
+                projectContainer.style.display = 'none';
+                projectInput.removeAttribute('required');
+                projectInput.value = '';
+            } else {
+                projectContainer.style.display = 'block';
+                projectInput.setAttribute('required', 'required');
+            }
             
             hargaContainer.style.display = 'none';
             hargaInput.removeAttribute('required');

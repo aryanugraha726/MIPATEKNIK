@@ -53,7 +53,8 @@ class MaterialRequestController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'job_id' => 'required',
+            'kategori' => 'required|in:Project,Internal,Stock',
+            'job_id' => 'required_if:kategori,Project',
             'tanggal' => 'required|date',
             'items' => 'required|array',
             'items.*.req_qty' => 'required|numeric|min:1'
@@ -64,7 +65,8 @@ class MaterialRequestController extends Controller
         $isPurchasing = !empty(array_intersect(['PURCHASING', 'ADMIN'], $roles));
 
         $mr = MaterialRequest::create([
-            'job_id' => $request->job_id,
+            'kategori' => $request->kategori,
+            'job_id' => $request->kategori === 'Project' ? $request->job_id : null,
             'id_karyawan' => $user->id_karyawan,
             'tanggal' => $request->tanggal,
             'status' => $isPurchasing ? 'APPROVED_MANAGER' : 'PENDING_MANAGER'
@@ -82,6 +84,6 @@ class MaterialRequestController extends Controller
             ]);
         }
 
-        return redirect()->route('material_request.index')->with('success', 'Nota Permintaan Barang berhasil dibuat.');
+        return redirect()->route('material-requests.index')->with('success', 'Nota Permintaan Barang berhasil dibuat.');
     }
 }

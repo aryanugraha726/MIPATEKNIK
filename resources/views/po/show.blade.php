@@ -13,7 +13,7 @@
         @if($po->status === 'APPROVED')
             <a href="{{ route('po.exportPdf') . '?no_po=' . urlencode($po->no_po) }}" target="_blank"
                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors flex items-center gap-1">
-                📄 Export PDF
+                Cetak PDF
             </a>
         @endif
     </div>

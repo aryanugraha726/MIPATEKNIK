@@ -15,49 +15,7 @@ class TugasController extends Controller
         return redirect()->route('projects.index');
     }
 
-    public function create(Request $request)
-    {
-        $subproject_id = $request->query('subproject_id');
-        $subproject = Subproject::findOrFail($subproject_id);
-        
-        $lastTugas = Tugas::where('subproject_id', $subproject_id)->orderBy('tugas_id', 'desc')->first();
-        if ($lastTugas) {
-            $lastSeq = (int) substr($lastTugas->tugas_id, -2);
-            $nextSeq = $lastSeq + 1;
-        } else {
-            $nextSeq = 1;
-        }
-        $nextId = $subproject_id . str_pad($nextSeq, 2, '0', STR_PAD_LEFT);
 
-        $karyawans = Karyawan::select('id_karyawan', 'nm_karyawan')->get();
-        $vendors = Vendor::select('id_vendor', 'nama_vendor')->get();
-        return view('tugas.create', compact('subproject', 'karyawans', 'vendors', 'nextId'));
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'tugas_id' => 'required|string|max:9|unique:tugas,tugas_id',
-            'subproject_id' => 'required|exists:subproject,subproject_id',
-            'tugas' => 'required|string|max:50',
-            'start_tugas' => 'required|date',
-            'durasi_hari' => 'required|integer|min:1',
-            'id_karyawan' => 'nullable|exists:karyawan,id_karyawan',
-            'id_vendor' => 'nullable|exists:vendor,id_vendor',
-        ]);
-        
-        Tugas::create([
-            'tugas_id' => $request->tugas_id,
-            'subproject_id' => $request->subproject_id,
-            'tugas' => $request->tugas,
-            'start_tugas' => $request->start_tugas,
-            'target_tugas' => date('Y-m-d', strtotime($request->start_tugas . ' + ' . $request->durasi_hari . ' days')),
-            'id_karyawan' => $request->id_karyawan ?: null,
-            'id_vendor' => $request->id_vendor ?: null,
-        ]);
-
-        return redirect()->route('subprojects.show', $request->subproject_id)->with('success', 'Rincian tugas berhasil ditambahkan');
-    }
 
     public function show($id)
     {
@@ -69,17 +27,29 @@ class TugasController extends Controller
     {
         $tugas = Tugas::findOrFail($id);
         $subproject = Subproject::findOrFail($tugas->subproject_id);
-        $karyawans = Karyawan::select('id_karyawan', 'nm_karyawan')->get();
+        $project = \App\Models\Project::with('workOrderRelease')->findOrFail($subproject->job_id);
+        $workScope = [];
+        if ($project->workOrderRelease && $project->workOrderRelease->work_scope) {
+            $workScope = json_decode($project->workOrderRelease->work_scope, true) ?: [];
+        }
+        $karyawans = Karyawan::select('id_karyawan', 'nm_karyawan')
+            ->withCount(['subproject' => function ($query) {
+                $query->where('is_completed', 0);
+            }, 'tugas' => function ($query) {
+                $query->where('is_completed', 0);
+            }])->get();
         $vendors = Vendor::select('id_vendor', 'nama_vendor')->get();
-        return view('tugas.edit', compact('tugas', 'subproject', 'karyawans', 'vendors'));
+        return view('tugas.edit', compact('tugas', 'subproject', 'karyawans', 'vendors', 'workScope'));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
             'tugas' => 'required|string|max:50',
+            'qty' => 'nullable|string|max:50',
+            'unit' => 'nullable|string|max:50',
             'start_tugas' => 'required|date',
-            'durasi_hari' => 'required|integer|min:1',
+            'durasi_hari' => 'required|integer|min:0',
             'id_karyawan' => 'nullable|exists:karyawan,id_karyawan',
             'id_vendor' => 'nullable|exists:vendor,id_vendor',
         ]);
@@ -87,6 +57,8 @@ class TugasController extends Controller
         $tugas = Tugas::findOrFail($id);
         $tugas->update([
             'tugas' => $request->tugas,
+            'qty' => $request->qty,
+            'unit' => $request->unit,
             'start_tugas' => $request->start_tugas,
             'target_tugas' => date('Y-m-d', strtotime($request->start_tugas . ' + ' . $request->durasi_hari . ' days')),
             'id_karyawan' => $request->id_karyawan ?: null,
@@ -121,6 +93,8 @@ class TugasController extends Controller
         }
         $tugas->save();
 
+        $this->cascadeCompletion($tugas->subproject_id);
+
         return redirect()->back()->with('success', 'Status tugas berhasil diperbarui.');
     }
 
@@ -129,6 +103,48 @@ class TugasController extends Controller
         $tugas = Tugas::findOrFail($id);
         $subprojectId = $tugas->subproject_id;
         $tugas->delete();
+        
+        $this->cascadeCompletion($subprojectId);
+        
         return redirect()->route('subprojects.show', $subprojectId)->with('success', 'Rincian tugas berhasil dihapus');
+    }
+
+    private function cascadeCompletion($subprojectId)
+    {
+        $subproject = Subproject::find($subprojectId);
+        if ($subproject) {
+            $totalTugas = Tugas::where('subproject_id', $subprojectId)->count();
+            $completedTugas = Tugas::where('subproject_id', $subprojectId)->where('is_completed', 1)->count();
+            
+            $wasCompleted = $subproject->is_completed;
+            $nowCompleted = ($totalTugas > 0 && $totalTugas == $completedTugas);
+            
+            // If subproject had no tasks (all deleted), it shouldn't auto-complete unless we consider 0/0 as complete, 
+            // but let's default to false if no tasks.
+            if ($totalTugas == 0) {
+                $nowCompleted = false;
+            }
+            
+            if ($wasCompleted != $nowCompleted) {
+                $subproject->update([
+                    'is_completed' => $nowCompleted ? 1 : 0,
+                    'tanggal_selesai' => $nowCompleted ? now()->toDateString() : null
+                ]);
+                
+                // Cascade to Project
+                $project = \App\Models\Project::find($subproject->job_id);
+                if ($project) {
+                    $totalSub = Subproject::where('job_id', $project->job_id)->count();
+                    $completedSub = Subproject::where('job_id', $project->job_id)->where('is_completed', 1)->count();
+                    
+                    $projNowCompleted = ($totalSub > 0 && $totalSub == $completedSub);
+                    
+                    $project->update([
+                        'is_completed' => $projNowCompleted ? 1 : 0,
+                        'tanggal_selesai' => $projNowCompleted ? now()->toDateString() : null
+                    ]);
+                }
+            }
+        }
     }
 }

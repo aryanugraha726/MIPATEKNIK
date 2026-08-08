@@ -10,4 +10,9 @@ class Divisi extends Model
     protected $primaryKey = 'id_divisi';
     public $timestamps = false;
     protected $guarded = [];
+
+    public function karyawan()
+    {
+        return $this->belongsToMany(Karyawan::class, 'karyawan_divisi', 'id_divisi', 'id_karyawan');
+    }
 }

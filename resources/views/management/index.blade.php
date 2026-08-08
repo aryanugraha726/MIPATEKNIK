@@ -36,7 +36,7 @@
                 <tr class="hover:bg-gray-50 transition">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">{{ $m->management_id }}</td>
                     <td class="px-6 py-4 text-sm text-gray-800 font-bold">{{ $m->karyawan->nm_karyawan ?? '-' }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">{{ $m->divisi->nama_divisi ?? '-' }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ $m->karyawan ? ($m->karyawan->divisi->pluck('nama_divisi')->join(', ') ?: '-') : '-' }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                         <a href="{{ route('management.edit', $m->management_id) }}" class="text-indigo-600 hover:text-indigo-900 mx-2">Edit</a>
                         <form action="{{ route('management.destroy', $m->management_id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus Management PIC ini?')">

@@ -39,7 +39,7 @@
                 <p class="text-sm text-gray-500 mb-1">Penanggung Jawab</p>
                 <p class="font-medium text-gray-800">
                     {{ $project->management->karyawan->nm_karyawan ?? 'N/A' }} 
-                    <span class="text-gray-400 text-sm">({{ $project->management->divisi->nama_divisi ?? '-' }})</span>
+                    <span class="text-gray-400 text-sm">({{ $project->management->karyawan ? ($project->management->karyawan->divisi->pluck('nama_divisi')->join(', ') ?: '-') : '-' }})</span>
                 </p>
             </div>
         </div>
@@ -48,9 +48,6 @@
     <!-- Subprojects Section -->
     <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-bold text-gray-800">Daftar Subproject</h2>
-        <a href="{{ route('subprojects.create', ['job_id' => $project->job_id]) }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow text-sm">
-            + Tambah Subproject
-        </a>
     </div>
 
     @if(session('success'))
@@ -88,10 +85,10 @@
                         <span class="{{ $color }}">{{ $text }}</span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {{ $sub->karyawan->nm_karyawan ?? 'N/A' }}
+                        {{ $sub->management->karyawan->nm_karyawan ?? 'N/A' }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                        <a href="{{ route('subprojects.show', $sub->subproject_id) }}" class="text-indigo-600 hover:text-indigo-900 mx-1 border border-indigo-200 px-2 py-1 rounded bg-indigo-50">Detail / Tugas</a>
+                        <a href="{{ route('subprojects.show', $sub->subproject_id) }}" class="text-indigo-600 hover:text-indigo-900 mx-1 border border-indigo-200 px-2 py-1 rounded bg-indigo-50">Detail</a>
                         <a href="{{ route('subprojects.edit', $sub->subproject_id) }}" class="text-blue-600 hover:text-blue-900 mx-1">Edit</a>
                         <form action="{{ route('subprojects.destroy', $sub->subproject_id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus subproject ini?')">
                             @csrf

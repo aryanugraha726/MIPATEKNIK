@@ -21,9 +21,20 @@
         <form action="{{ route('karyawan.store') }}" method="POST">
             @csrf
             
-            <div class="mb-6">
+            <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Nama Karyawan</label>
                 <input type="text" name="nm_karyawan" value="{{ old('nm_karyawan') }}" placeholder="Contoh: Budi Santoso" class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-indigo-300" required>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Divisi (Pilih bisa lebih dari 1 dengan Ctrl/Cmd)</label>
+                <select name="id_divisi[]" multiple class="shadow-sm border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-indigo-300 h-32" required>
+                    @foreach($divisis as $d)
+                        <option value="{{ $d->id_divisi }}" {{ (is_array(old('id_divisi')) && in_array($d->id_divisi, old('id_divisi'))) ? 'selected' : '' }}>
+                            {{ $d->nama_divisi }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
 
             <div class="flex items-center justify-end">

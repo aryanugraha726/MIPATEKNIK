@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Karyawan;
+use App\Models\Divisi;
 use Illuminate\Http\Request;
 
 class KaryawanController extends Controller
@@ -12,7 +13,7 @@ class KaryawanController extends Controller
      */
     public function index()
     {
-        $karyawans = Karyawan::all();
+        $karyawans = Karyawan::with('divisi')->get();
         return view('karyawan.index', compact('karyawans'));
     }
 
@@ -21,7 +22,8 @@ class KaryawanController extends Controller
      */
     public function create()
     {
-        return view('karyawan.create');
+        $divisis = Divisi::all();
+        return view('karyawan.create', compact('divisis'));
     }
 
     /**
@@ -31,14 +33,18 @@ class KaryawanController extends Controller
     {
         $request->validate([
             'nm_karyawan' => 'required|string|max:25',
+            'id_divisi' => 'required|array',
+            'id_divisi.*' => 'integer',
         ]);
         
         $newId = Karyawan::max('id_karyawan') + 1;
 
-        Karyawan::create([
+        $karyawan = Karyawan::create([
             'id_karyawan' => $newId ?: 1,
             'nm_karyawan' => $request->nm_karyawan,
         ]);
+
+        $karyawan->divisi()->sync($request->id_divisi);
 
         return redirect()->route('karyawan.index')->with('success', 'Karyawan berhasil ditambahkan');
     }
@@ -49,7 +55,8 @@ class KaryawanController extends Controller
     public function edit(string $id)
     {
         $karyawan = Karyawan::findOrFail($id);
-        return view('karyawan.edit', compact('karyawan'));
+        $divisis = Divisi::all();
+        return view('karyawan.edit', compact('karyawan', 'divisis'));
     }
 
     /**
@@ -59,12 +66,16 @@ class KaryawanController extends Controller
     {
         $request->validate([
             'nm_karyawan' => 'required|string|max:25',
+            'id_divisi' => 'required|array',
+            'id_divisi.*' => 'integer',
         ]);
 
         $karyawan = Karyawan::findOrFail($id);
         $karyawan->update([
             'nm_karyawan' => $request->nm_karyawan,
         ]);
+
+        $karyawan->divisi()->sync($request->id_divisi);
 
         return redirect()->route('karyawan.index')->with('success', 'Karyawan berhasil diupdate');
     }

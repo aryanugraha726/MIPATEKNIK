@@ -15,9 +15,4 @@ class Management extends Model
     {
         return $this->belongsTo(Karyawan::class, 'id_karyawan', 'id_karyawan');
     }
-
-    public function divisi()
-    {
-        return $this->belongsTo(Divisi::class, 'id_divisi', 'id_divisi');
-    }
 }

@@ -39,6 +39,18 @@
             @endif
 
             {{-- ============================================= --}}
+            {{-- MENU MARKETING (ADMIN, MARKETING) --}}
+            {{-- ============================================= --}}
+            @if(array_intersect(['ADMIN', 'MARKETING'], $roles))
+            <div class="pt-6 pb-2">
+                <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Marketing</p>
+            </div>
+            <a href="{{ route('wor.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('wor.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
+                <span class="font-medium text-sm">Work Order Release</span>
+            </a>
+            @endif
+
+            {{-- ============================================= --}}
             {{-- MENU PURCHASING (ADMIN, PURCHASING) --}}
             {{-- ============================================= --}}
             @if(array_intersect(['ADMIN', 'PURCHASING'], $roles))
@@ -123,6 +135,9 @@
             <a href="{{ route('po.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('po.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
                 <span class="font-medium text-sm">Persetujuan PO</span>
             </a>
+            <a href="{{ route('wor.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('wor.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
+                <span class="font-medium text-sm">Persetujuan WOR</span>
+            </a>
             @endif
 
             {{-- ============================================= --}}
@@ -197,10 +212,11 @@
                         const targetDate = new Date(targetInput.value);
                         const diffTime = targetDate - startDate;
                         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                        if (diffDays >= 1) {
+                        
+                        if (diffDays >= 0) {
                             durasiInput.value = diffDays;
                         } else {
-                            durasiInput.value = 1;
+                            durasiInput.value = 0;
                             updateTarget();
                         }
                     }

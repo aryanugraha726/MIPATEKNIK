@@ -27,9 +27,24 @@
             @csrf
             @method('PUT')
             
+            @if(count($workScope) > 0)
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Ambil dari Work Scope (Otomatis)</label>
+                <select id="work_scope_select" class="shadow-sm border rounded w-full py-2 px-3 text-gray-700 bg-white focus:outline-none focus:ring focus:border-blue-300">
+                    <option value="">-- Pilih Work Scope --</option>
+                    @foreach($workScope as $index => $ws)
+                        <option value="{{ $index }}" data-part="{{ $ws['part_description'] ?? '' }}">
+                            {{ $ws['part_description'] ?? 'Item ' . ($index + 1) }} - {{ $ws['qty'] ?? '' }} {{ $ws['unit'] ?? '' }}
+                        </option>
+                    @endforeach
+                </select>
+                <p class="text-xs text-gray-500 mt-1">Pilih untuk menimpa Nama Subproject secara otomatis dari data awal.</p>
+            </div>
+            @endif
+
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Nama Subproject</label>
-                <input type="text" name="nama_subproject" value="{{ old('nama_subproject', $subproject->nama_subproject) }}" class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
+                <input type="text" id="nama_subproject_input" name="nama_subproject" value="{{ old('nama_subproject', $subproject->nama_subproject) }}" class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
             </div>
 
             @php $durasi = \Carbon\Carbon::parse($subproject->start_subproject)->diffInDays(\Carbon\Carbon::parse($subproject->target_subproject)); @endphp
@@ -45,19 +60,19 @@
                 <div>
                     <label class="block text-gray-700 text-sm font-bold mb-2">Durasi Pengerjaan</label>
                     <div class="flex items-center">
-                        <input type="number" name="durasi_hari" min="1" value="{{ old('durasi_hari', $durasi) }}" class="sync-durasi shadow-sm appearance-none border rounded-l w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
+                        <input type="number" name="durasi_hari" min="0" value="{{ old('durasi_hari', $durasi) }}" class="sync-durasi shadow-sm appearance-none border rounded-l w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
                         <span class="bg-gray-100 border border-l-0 border-gray-300 rounded-r py-2 px-4 text-gray-600">Hari</span>
                     </div>
                 </div>
             </div>
 
             <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2">Operator</label>
-                <select name="id_karyawan" class="shadow-sm border rounded w-full py-2 px-3 text-gray-700 bg-white focus:outline-none focus:ring focus:border-blue-300" required>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Operator (Opsional)</label>
+                <select name="id_karyawan" class="shadow-sm border rounded w-full py-2 px-3 text-gray-700 bg-white focus:outline-none focus:ring focus:border-blue-300">
                     <option value="">-- Pilih Operator --</option>
                     @foreach($karyawans as $k)
                         <option value="{{ $k->id_karyawan }}" {{ old('id_karyawan', $subproject->id_karyawan) == $k->id_karyawan ? 'selected' : '' }}>
-                            {{ $k->nm_karyawan }}
+                            {{ $k->nm_karyawan }} ({{ ($k->subproject_count ?? 0) + ($k->tugas_count ?? 0) }} Tugas Aktif)
                         </option>
                     @endforeach
                 </select>
@@ -69,7 +84,7 @@
                     <option value="">-- Pilih Penanggung Jawab --</option>
                     @foreach($managements as $m)
                         <option value="{{ $m->management_id }}" {{ old('management_id', $subproject->management_id) == $m->management_id ? 'selected' : '' }}>
-                            {{ $m->karyawan->nm_karyawan ?? 'Unknown' }} ({{ $m->divisi->nama_divisi ?? 'Unknown Divisi' }})
+                            {{ $m->karyawan->nm_karyawan ?? 'Unknown' }} ({{ $m->karyawan ? ($m->karyawan->divisi->pluck('nama_divisi')->join(', ') ?: 'Unknown Divisi') : 'Unknown Divisi' }})
                         </option>
                     @endforeach
                 </select>
@@ -83,4 +98,20 @@
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const wsSelect = document.getElementById('work_scope_select');
+        const namaSubprojectInput = document.getElementById('nama_subproject_input');
+
+        if(wsSelect) {
+            wsSelect.addEventListener('change', function() {
+                const selected = this.options[this.selectedIndex];
+                if(selected.value !== "") {
+                    namaSubprojectInput.value = selected.getAttribute('data-part');
+                }
+            });
+        }
+    });
+</script>
 @endsection

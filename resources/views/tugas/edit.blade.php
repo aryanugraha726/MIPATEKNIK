@@ -27,9 +27,35 @@
             @csrf
             @method('PUT')
             
+            @if(count($workScope) > 0)
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Ambil dari Work Scope (Otomatis)</label>
+                <select id="work_scope_select" class="shadow-sm border rounded w-full py-2 px-3 text-gray-700 bg-white focus:outline-none focus:ring focus:border-blue-300">
+                    <option value="">-- Pilih Work Scope --</option>
+                    @foreach($workScope as $index => $ws)
+                        <option value="{{ $index }}" data-part="{{ $ws['part_description'] ?? '' }}" data-qty="{{ $ws['qty'] ?? '' }}" data-unit="{{ $ws['unit'] ?? '' }}">
+                            {{ $ws['part_description'] ?? 'Item ' . ($index + 1) }} - {{ $ws['qty'] ?? '' }} {{ $ws['unit'] ?? '' }}
+                        </option>
+                    @endforeach
+                </select>
+                <p class="text-xs text-gray-500 mt-1">Pilih untuk menimpa Rincian, Qty, dan Unit secara otomatis dari data awal.</p>
+            </div>
+            @endif
+
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Rincian Tugas</label>
-                <input type="text" name="tugas" value="{{ old('tugas', $tugas->tugas) }}" class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
+                <input type="text" id="tugas_input" name="tugas" value="{{ old('tugas', $tugas->tugas) }}" class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Quantity (Opsional)</label>
+                    <input type="text" id="qty_input" name="qty" value="{{ old('qty', $tugas->qty) }}" class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Unit (Opsional)</label>
+                    <input type="text" id="unit_input" name="unit" value="{{ old('unit', $tugas->unit) }}" class="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300">
+                </div>
             </div>
 
             @php $durasi = \Carbon\Carbon::parse($tugas->start_tugas)->diffInDays(\Carbon\Carbon::parse($tugas->target_tugas)); @endphp
@@ -45,7 +71,7 @@
                 <div>
                     <label class="block text-gray-700 text-sm font-bold mb-2">Durasi Pengerjaan</label>
                     <div class="flex items-center">
-                        <input type="number" name="durasi_hari" min="1" value="{{ old('durasi_hari', $durasi) }}" class="sync-durasi shadow-sm appearance-none border rounded-l w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
+                        <input type="number" name="durasi_hari" min="0" value="{{ old('durasi_hari', $durasi) }}" class="sync-durasi shadow-sm appearance-none border rounded-l w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-blue-300" required>
                         <span class="bg-gray-100 border border-l-0 border-gray-300 rounded-r py-2 px-4 text-gray-600">Hari</span>
                     </div>
                 </div>
@@ -58,7 +84,7 @@
                         <option value="">-- Pilih Operator --</option>
                         @foreach($karyawans as $k)
                             <option value="{{ $k->id_karyawan }}" {{ old('id_karyawan', $tugas->id_karyawan) == $k->id_karyawan ? 'selected' : '' }}>
-                                {{ $k->nm_karyawan }}
+                                {{ $k->nm_karyawan }} ({{ ($k->subproject_count ?? 0) + ($k->tugas_count ?? 0) }} Tugas Aktif)
                             </option>
                         @endforeach
                     </select>
@@ -85,4 +111,24 @@
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const wsSelect = document.getElementById('work_scope_select');
+        const tugasInput = document.getElementById('tugas_input');
+        const qtyInput = document.getElementById('qty_input');
+        const unitInput = document.getElementById('unit_input');
+
+        if(wsSelect) {
+            wsSelect.addEventListener('change', function() {
+                const selected = this.options[this.selectedIndex];
+                if(selected.value !== "") {
+                    tugasInput.value = selected.getAttribute('data-part');
+                    qtyInput.value = selected.getAttribute('data-qty');
+                    unitInput.value = selected.getAttribute('data-unit');
+                }
+            });
+        }
+    });
+</script>
 @endsection

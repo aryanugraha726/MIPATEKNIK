@@ -6,7 +6,7 @@ class WorkOrderRelease extends Model {
     protected $table = 'work_order_release';
     protected $primaryKey = 'job_id';
     public $incrementing = false;
-    protected $keyType = 'int';
+    protected $keyType = 'string';
     public $timestamps = false;
     protected $guarded = [];
 
@@ -15,8 +15,13 @@ class WorkOrderRelease extends Model {
         return $this->hasOne(Project::class, 'job_id', 'job_id');
     }
 
-    public function satuan()
+    public function details()
     {
-        return $this->belongsTo(Satuan::class, 'id_satuan', 'id_satuan');
+        return $this->hasMany(WorkOrderReleaseDetail::class, 'job_id', 'job_id');
+    }
+
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approved_by', 'user_id');
     }
 }

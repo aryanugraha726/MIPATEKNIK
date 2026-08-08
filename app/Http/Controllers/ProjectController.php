@@ -12,22 +12,22 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        $projects = Project::with(['management.karyawan', 'subprojects.karyawan', 'subprojects.management.karyawan', 'subprojects.tugas.karyawan', 'subprojects.tugas.vendor'])->orderBy('start_project', 'desc')->get();
+        $projects = Project::with(['management.karyawan', 'subprojects.karyawan', 'subprojects.management.karyawan', 'subprojects.tugas.karyawan', 'subprojects.tugas.vendor'])->orderBy('job_id', 'desc')->get();
         return view('projects.index', compact('projects'));
     }
 
     public function create()
     {
-        $nextId = Project::max('job_id') + 1;
-        $managements = Management::with(['karyawan:id_karyawan,nm_karyawan', 'divisi:id_divisi,nama_divisi'])
-            ->select('management_id', 'id_karyawan', 'id_divisi')->get();
-        return view('projects.create', compact('managements', 'nextId'));
+        $workOrders = \App\Models\WorkOrderRelease::where('status', 'Approved')->doesntHave('project')->get();
+        $managements = Management::with(['karyawan.divisi'])
+            ->select('management_id', 'id_karyawan')->get();
+        return view('projects.create', compact('managements', 'workOrders'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'job_id' => 'required|integer|unique:project,job_id',
+            'job_id' => 'required|string|max:7|exists:work_order_release,job_id|unique:project,job_id',
             'nama_project' => 'required|string|max:50',
             'prioritas' => 'required|string|max:8',
             'start_project' => 'required|date',
@@ -49,15 +49,15 @@ class ProjectController extends Controller
 
     public function show($id)
     {
-        $project = Project::with(['management.karyawan', 'subprojects.karyawan'])->findOrFail($id);
+        $project = Project::with(['management.karyawan', 'subprojects.karyawan', 'subprojects.management.karyawan'])->findOrFail($id);
         return view('projects.show', compact('project'));
     }
 
     public function edit($id)
     {
         $project = Project::findOrFail($id);
-        $managements = Management::with(['karyawan:id_karyawan,nm_karyawan', 'divisi:id_divisi,nama_divisi'])
-            ->select('management_id', 'id_karyawan', 'id_divisi')->get();
+        $managements = Management::with(['karyawan.divisi'])
+            ->select('management_id', 'id_karyawan')->get();
         return view('projects.edit', compact('project', 'managements'));
     }
 

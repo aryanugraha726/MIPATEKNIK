@@ -24,6 +24,7 @@
             <tr class="bg-gray-50 border-b border-gray-100 text-sm">
                 <th class="p-4 font-semibold text-gray-600">No. Nota</th>
                 <th class="p-4 font-semibold text-gray-600">Tanggal</th>
+                <th class="p-4 font-semibold text-gray-600">Kategori</th>
                 <th class="p-4 font-semibold text-gray-600">Job ID (Project)</th>
                 <th class="p-4 font-semibold text-gray-600">Status</th>
                 <th class="p-4 font-semibold text-gray-600">Detail Items</th>
@@ -34,7 +35,10 @@
             <tr class="hover:bg-gray-50">
                 <td class="p-4 font-medium text-gray-900">#{{ $req->no_nota }}</td>
                 <td class="p-4 text-gray-600">{{ $req->tanggal }}</td>
-                <td class="p-4 text-gray-600">{{ $req->job_id }}</td>
+                <td class="p-4 text-gray-600">
+                    <span class="px-2 py-1 rounded bg-gray-200 text-xs font-semibold">{{ $req->kategori }}</span>
+                </td>
+                <td class="p-4 text-gray-600">{{ $req->job_id ?? '-' }}</td>
                 <td class="p-4">
                     @if($req->status == 'PENDING_MANAGER')
                         <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full font-semibold">Pending Approval</span>

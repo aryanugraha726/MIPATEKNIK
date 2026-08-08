@@ -60,7 +60,7 @@
                     <option value="">-- Pilih Penanggung Jawab --</option>
                     @foreach($managements as $m)
                         <option value="{{ $m->management_id }}" {{ old('management_id', $project->management_id) == $m->management_id ? 'selected' : '' }}>
-                            {{ $m->karyawan->nm_karyawan ?? 'Unknown' }} ({{ $m->divisi->nama_divisi ?? 'Unknown Divisi' }})
+                            {{ $m->karyawan->nm_karyawan ?? 'Unknown' }} ({{ $m->karyawan ? ($m->karyawan->divisi->pluck('nama_divisi')->join(', ') ?: 'Unknown Divisi') : 'Unknown Divisi' }})
                         </option>
                     @endforeach
                 </select>

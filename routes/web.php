@@ -20,6 +20,7 @@ use App\Http\Controllers\MaterialRequestController;
 use App\Http\Controllers\ManagerApprovalController;
 use App\Http\Controllers\ShippingAddressController;
 use App\Http\Controllers\POController;
+use App\Http\Controllers\WorkOrderReleaseController;
 use Illuminate\Support\Facades\Route;
 
 // Auth Routes
@@ -39,8 +40,18 @@ Route::middleware(['auth'])->group(function () {
     // =============================================
     Route::middleware('role:ADMIN,PPIC')->group(function () {
         Route::resource('projects', ProjectController::class);
-        Route::resource('subprojects', SubprojectController::class)->except(['index']);
-        Route::resource('tugas', TugasController::class)->except(['index', 'show']);
+        Route::post('/projects/{id}/subprojects/bulk', [SubprojectController::class, 'bulkStore'])->name('subprojects.bulkStore');
+        Route::resource('subprojects', SubprojectController::class)->except(['index', 'create', 'store']);
+        Route::resource('tugas', TugasController::class)->except(['index', 'show', 'create', 'store']);
+    });
+
+    // =============================================
+    // MENU MARKETING (role: ADMIN, MARKETING, DIREKTUR UTAMA)
+    // =============================================
+    Route::middleware('role:ADMIN,MARKETING,DIREKTUR UTAMA')->group(function () {
+        Route::resource('wor', WorkOrderReleaseController::class);
+        Route::post('/wor/{id}/approve', [WorkOrderReleaseController::class, 'approve'])->name('wor.approve');
+        Route::post('/wor/{id}/reject', [WorkOrderReleaseController::class, 'reject'])->name('wor.reject');
     });
 
     // =============================================
@@ -55,6 +66,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/transaksi/baru', [TransactionController::class, 'create'])->name('transaksi.create');
         Route::post('/transaksi/baru', [TransactionController::class, 'store'])->name('transaksi.store');
         Route::get('/transaksi/po-details/{no_po}', [TransactionController::class, 'getPoDetails'])->name('transaksi.poDetails')->where('no_po', '.*');
+        Route::get('/transaksi/mr-details/{no_nota}', [TransactionController::class, 'getMrDetails'])->name('transaksi.mrDetails');
         Route::post('/transaksi/barang-ajax', [App\Http\Controllers\BarangController::class, 'storeAjax'])->name('barang.storeAjax');
         Route::get('/transaksi/antrean', [TransactionController::class, 'pendingList'])->name('transaksi.antrean');
         Route::get('/riwayat/masuk', [TransactionController::class, 'historyMasuk'])->name('transaksi.masuk');

@@ -5,6 +5,8 @@ use Illuminate\Database\Eloquent\Model;
 class Project extends Model {
     protected $table = 'project';
     protected $primaryKey = 'job_id';
+    public $incrementing = false;
+    protected $keyType = 'string';
     public $timestamps = false;
     protected $guarded = [];
 

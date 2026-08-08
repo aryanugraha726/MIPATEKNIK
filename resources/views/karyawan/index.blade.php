@@ -27,6 +27,7 @@
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">ID</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Karyawan</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Divisi</th>
                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-48">Aksi</th>
                 </tr>
             </thead>
@@ -35,6 +36,7 @@
                 <tr class="hover:bg-gray-50 transition">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">{{ $k->id_karyawan }}</td>
                     <td class="px-6 py-4 text-sm text-gray-800 font-bold">{{ $k->nm_karyawan }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ $k->divisi->pluck('nama_divisi')->join(', ') ?: '-' }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                         <a href="{{ route('karyawan.edit', $k->id_karyawan) }}" class="text-indigo-600 hover:text-indigo-900 mx-2">Edit</a>
                         <form action="{{ route('karyawan.destroy', $k->id_karyawan) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus Karyawan ini?')">
@@ -46,7 +48,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="3" class="px-6 py-8 text-center text-gray-500 italic">Belum ada data karyawan.</td>
+                    <td colspan="4" class="px-6 py-8 text-center text-gray-500 italic">Belum ada data karyawan.</td>
                 </tr>
                 @endforelse
             </tbody>

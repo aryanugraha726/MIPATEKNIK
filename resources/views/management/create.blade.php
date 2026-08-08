@@ -33,18 +33,6 @@
                 </select>
             </div>
 
-            <div class="mb-6">
-                <label class="block text-gray-700 text-sm font-bold mb-2">Divisi</label>
-                <select name="id_divisi" class="shadow-sm border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:border-indigo-300" required>
-                    <option value="">-- Pilih Divisi --</option>
-                    @foreach($divisis as $d)
-                        <option value="{{ $d->id_divisi }}" {{ old('id_divisi') == $d->id_divisi ? 'selected' : '' }}>
-                            {{ $d->nama_divisi }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
             <div class="flex items-center justify-end">
                 <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                     Simpan PIC

@@ -75,7 +75,7 @@
                         @else
                         <span class="w-4 h-4 mr-2 inline-block"></span>
                         @endif
-                        └ {{ $sub->subproject_id }}
+                        └ {{ substr($sub->subproject_id, -2) }}
                     </td>
                     <td class="px-3 py-2 text-sm text-gray-700 font-medium">{{ $sub->nama_subproject }}</td>
                     <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-400">-</td>
@@ -108,15 +108,21 @@
                             @endif
                         </form>
                         @endif
-                        <a href="{{ route('subprojects.show', $sub->subproject_id) }}" onclick="event.stopPropagation()" class="text-indigo-600 hover:text-indigo-900 mx-1 border border-indigo-200 px-2 py-1 rounded bg-indigo-50 inline-block align-middle">Detail / Tugas</a>
+                        <a href="{{ route('subprojects.show', $sub->subproject_id) }}" onclick="event.stopPropagation()" class="text-indigo-600 hover:text-indigo-900 mx-1 border border-indigo-200 px-2 py-1 rounded bg-indigo-50 inline-block align-middle">Detail</a>
+                        <a href="{{ route('subprojects.edit', $sub->subproject_id) }}" onclick="event.stopPropagation()" class="text-blue-600 hover:text-blue-900 mx-1">Edit</a>
+                        <form action="{{ route('subprojects.destroy', $sub->subproject_id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus subproject ini?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" onclick="event.stopPropagation()" class="text-red-600 hover:text-red-900 mx-1">Hapus</button>
+                        </form>
                     </td>
                 </tr>
 
                     {{-- TUGAS ROWS --}}
                     @foreach($sub->tugas as $t)
                     <tr class="tugas-{{ $sub->subproject_id }} hidden bg-gray-100 hover:bg-gray-200 transition">
-                        <td class="px-3 py-2 pl-10 whitespace-nowrap text-sm font-bold text-gray-600 border-l-4 border-gray-300">
-                            └ {{ $t->tugas_id }}
+                        <td class="px-3 py-2 pl-12 whitespace-nowrap text-sm font-bold text-gray-600 border-l-4 border-gray-300">
+                            └ {{ substr($t->tugas_id, -2) }}
                         </td>
                         <td class="px-3 py-2 text-sm text-gray-700">{{ $t->tugas }}</td>
                         <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-400">-</td>
@@ -141,16 +147,24 @@
                                 -
                             @endif
                         </td>
-                        <td class="px-3 py-2 whitespace-nowrap text-center text-sm font-medium">
-                            <form action="{{ route('tugas.toggle-status', $t->tugas_id) }}" method="POST" class="inline">
-                                @csrf
-                                <input type="checkbox" onchange="this.form.submit()" {{ $t->is_completed ? 'checked' : '' }} class="w-5 h-5 text-blue-600 bg-white rounded border-gray-400 focus:ring-blue-500 cursor-pointer">
-                                @if($t->is_completed && $t->tanggal_selesai)
-                                <span class="block text-xs mt-1 text-gray-500 italic">
-                                    {{ date('d M Y', strtotime($t->tanggal_selesai)) }}
-                                </span>
-                                @endif
-                            </form>
+                        <td class="px-3 py-2 whitespace-nowrap text-sm font-medium">
+                            <div class="flex items-center justify-center space-x-3">
+                                <form action="{{ route('tugas.toggle-status', $t->tugas_id) }}" method="POST" class="flex flex-col items-center">
+                                    @csrf
+                                    <input type="checkbox" onchange="this.form.submit()" {{ $t->is_completed ? 'checked' : '' }} class="w-5 h-5 text-blue-600 bg-white rounded border-gray-400 focus:ring-blue-500 cursor-pointer">
+                                    @if($t->is_completed && $t->tanggal_selesai)
+                                    <span class="text-xs mt-1 text-gray-500 italic">
+                                        {{ date('d M Y', strtotime($t->tanggal_selesai)) }}
+                                    </span>
+                                    @endif
+                                </form>
+                                <a href="{{ route('tugas.edit', $t->tugas_id) }}" onclick="event.stopPropagation()" class="text-blue-600 hover:text-blue-900 font-semibold">Edit</a>
+                                <form action="{{ route('tugas.destroy', $t->tugas_id) }}" method="POST" class="m-0" onsubmit="return confirm('Yakin ingin menghapus tugas ini?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" onclick="event.stopPropagation()" class="text-red-600 hover:text-red-900 font-semibold">Hapus</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     @endforeach

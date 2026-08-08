@@ -32,10 +32,12 @@ class User extends Authenticatable
             return ['KARYAWAN'];
         }
 
-        $divisiNames = \App\Models\Management::where('id_karyawan', $this->id_karyawan)
-            ->join('divisi', 'management.id_divisi', '=', 'divisi.id_divisi')
-            ->pluck('divisi.nama_divisi')
-            ->toArray();
+        $isManager = \App\Models\Management::where('id_karyawan', $this->id_karyawan)->exists();
+
+        $divisiNames = [];
+        if ($isManager && $this->karyawan->divisi->isNotEmpty()) {
+            $divisiNames = array_merge($divisiNames, $this->karyawan->divisi->pluck('nama_divisi')->toArray());
+        }
 
         if (empty($divisiNames)) {
             return ['KARYAWAN'];
