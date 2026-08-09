@@ -46,7 +46,7 @@ class MaterialRequestController extends Controller
             $jobIds = collect(array_merge($subprojectJobs, $tugasJobs))->filter()->unique();
         }
 
-        $barangs = \App\Models\Barang::all();
+        $barangs = \App\Models\Barang::with('satuan')->get();
         return view('material_request.create', compact('jobIds', 'barangs', 'isPurchasing'));
     }
 

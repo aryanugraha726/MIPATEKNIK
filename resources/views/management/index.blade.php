@@ -3,9 +3,9 @@
 @section('content')
 <div class="max-w-7xl mx-auto">
     <div class="mb-6 flex items-center justify-between">
-        <h1 class="text-2xl font-bold border-l-4 border-purple-600 pl-3">Master Management (PIC)</h1>
+        <h1 class="text-2xl font-bold border-l-4 border-purple-600 pl-3">Master Management</h1>
         <a href="{{ route('management.create') }}" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded shadow-sm text-sm">
-            + Tambah PIC
+            + Tambah Management
         </a>
     </div>
 
@@ -39,7 +39,7 @@
                     <td class="px-6 py-4 text-sm text-gray-600">{{ $m->karyawan ? ($m->karyawan->divisi->pluck('nama_divisi')->join(', ') ?: '-') : '-' }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                         <a href="{{ route('management.edit', $m->management_id) }}" class="text-indigo-600 hover:text-indigo-900 mx-2">Edit</a>
-                        <form action="{{ route('management.destroy', $m->management_id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus Management PIC ini?')">
+                        <form action="{{ route('management.destroy', $m->management_id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus Management ini?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="text-red-600 hover:text-red-900 mx-2">Hapus</button>
@@ -48,7 +48,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="4" class="px-6 py-8 text-center text-gray-500 italic">Belum ada data management (PIC).</td>
+                    <td colspan="4" class="px-6 py-8 text-center text-gray-500 italic">Belum ada data management.</td>
                 </tr>
                 @endforelse
             </tbody>

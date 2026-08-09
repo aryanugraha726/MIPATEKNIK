@@ -27,10 +27,23 @@ class ManagerApprovalController extends Controller
                         ->orderBy('tanggal', 'desc')
                         ->get();
         } else {
+            // Get jobs managed by the manager
             $managedJobIds = Project::whereIn('management_id', $managementIds)->pluck('job_id');
+
+            // Get divisions managed by the manager (since they are in the division)
+            $managedDivisiIds = \DB::table('karyawan_divisi')
+                ->where('id_karyawan', $user->id_karyawan)
+                ->pluck('id_divisi')
+                ->toArray();
+
             $requests = MaterialRequest::with(['details.barang', 'workOrderRelease', 'karyawan'])
-                        ->whereIn('job_id', $managedJobIds)
                         ->where('status', 'PENDING_MANAGER')
+                        ->where(function ($query) use ($managedJobIds, $managedDivisiIds) {
+                            $query->whereIn('job_id', $managedJobIds)
+                                  ->orWhereHas('karyawan.divisi', function ($q) use ($managedDivisiIds) {
+                                      $q->whereIn('divisi.id_divisi', $managedDivisiIds);
+                                  });
+                        })
                         ->orderBy('tanggal', 'desc')
                         ->get();
         }

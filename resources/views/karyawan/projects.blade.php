@@ -22,7 +22,7 @@
             <div class="text-sm text-gray-600 mb-4 space-y-1">
                 <p><strong>Mulai:</strong> {{ date('d M Y', strtotime($p->start_project)) }}</p>
                 <p><strong>Target Selesai:</strong> {{ date('d M Y', strtotime($p->target_project)) }}</p>
-                <p><strong>PIC:</strong> {{ $p->management->karyawan->nm_karyawan ?? '-' }}</p>
+                <p><strong>Management:</strong> {{ $p->management->karyawan->nm_karyawan ?? '-' }}</p>
             </div>
 
             <a href="{{ route('karyawan.gantt', $p->job_id) }}" class="block w-full text-center bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition">

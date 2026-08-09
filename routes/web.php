@@ -133,16 +133,40 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // =============================================
-    // MASTER DATA (role: ADMIN saja)
+    // MASTER DATA HOME (role: ADMIN, HRD, PURCHASING)
     // =============================================
-    Route::middleware('role:ADMIN')->group(function () {
+    Route::middleware('role:ADMIN,HRD,PURCHASING')->group(function () {
         Route::get('/master-data', [MasterDataController::class, 'index'])->name('master-data.index');
+    });
+
+    // =============================================
+    // MASTER DATA HRD (role: ADMIN, HRD)
+    // =============================================
+    Route::middleware('role:ADMIN,HRD')->group(function () {
         Route::resource('divisi', DivisiController::class)->except(['show']);
         Route::resource('karyawan', KaryawanController::class)->except(['show']);
         Route::resource('management', ManagementController::class)->except(['show']);
+    });
+
+    // =============================================
+    // MASTER DATA PURCHASING & PPIC (role: ADMIN, PURCHASING, PPIC)
+    // =============================================
+    Route::middleware('role:ADMIN,PURCHASING,PPIC')->group(function () {
         Route::resource('vendor', VendorController::class)->except(['show']);
+    });
+
+    // =============================================
+    // MASTER DATA PURCHASING (role: ADMIN, PURCHASING)
+    // =============================================
+    Route::middleware('role:ADMIN,PURCHASING')->group(function () {
         Route::resource('kategori', KategoriBarangController::class)->except(['show']);
         Route::resource('satuan', SatuanController::class)->except(['show']);
+    });
+
+    // =============================================
+    // ADMINISTRATOR SAJA
+    // =============================================
+    Route::middleware('role:ADMIN')->group(function () {
         Route::resource('users', UserController::class);
     });
 

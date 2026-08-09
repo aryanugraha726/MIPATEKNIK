@@ -3,7 +3,7 @@
 @section('content')
 <div class="max-w-xl mx-auto">
     <div class="mb-6 flex items-center justify-between">
-        <h1 class="text-2xl font-bold border-l-4 border-purple-600 pl-3">Edit Management (PIC) #{{ $management->management_id }}</h1>
+        <h1 class="text-2xl font-bold border-l-4 border-purple-600 pl-3">Edit Management #{{ $management->management_id }}</h1>
         <a href="{{ route('management.index') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
     </div>
 
@@ -36,7 +36,7 @@
 
             <div class="flex items-center justify-end">
                 <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    Update PIC
+                    Update Management
                 </button>
             </div>
         </form>

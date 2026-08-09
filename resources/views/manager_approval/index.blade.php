@@ -4,7 +4,7 @@
 <div class="mb-6 flex justify-between items-center">
     <div>
         <h1 class="text-2xl font-bold text-gray-900">Persetujuan Manager (Approval)</h1>
-        <p class="text-sm text-gray-500">Daftar permintaan barang untuk project di bawah pengawasan Anda</p>
+        <p class="text-sm text-gray-500">Daftar material request untuk project di bawah pengawasan Anda</p>
     </div>
 </div>
 

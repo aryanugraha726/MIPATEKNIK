@@ -77,11 +77,25 @@ class PPICController extends Controller
             'custom_class' => 'bar-project'
         ]);
 
-        $managements = Management::with(['karyawan.divisi'])->select('management_id', 'id_karyawan')->get();
-        $karyawans = \App\Models\Karyawan::select('id_karyawan', 'nm_karyawan')
+        $managements = Management::select('management.management_id', 'management.id_karyawan', 'karyawan.nm_karyawan')
+            ->join('karyawan', 'management.id_karyawan', '=', 'karyawan.id_karyawan')
+            ->leftJoin('karyawan_divisi', 'karyawan.id_karyawan', '=', 'karyawan_divisi.id_karyawan')
+            ->selectRaw('GROUP_CONCAT(karyawan_divisi.id_divisi) as id_divisi')
+            ->groupBy('management.management_id', 'management.id_karyawan', 'karyawan.nm_karyawan')
+            ->get();
+        $karyawans = \App\Models\Karyawan::select('karyawan.id_karyawan', 'karyawan.nm_karyawan')
+            ->leftJoin('karyawan_divisi', 'karyawan.id_karyawan', '=', 'karyawan_divisi.id_karyawan')
+            ->selectRaw('GROUP_CONCAT(karyawan_divisi.id_divisi) as id_divisi')
+            ->groupBy('karyawan.id_karyawan', 'karyawan.nm_karyawan')
             ->withCount(['subproject' => function ($q) { $q->where('is_completed', 0); },
                          'tugas'      => function ($q) { $q->where('is_completed', 0); }])
-            ->get();
+            ->get()
+            ->map(function($k) {
+                $k->total_tugas = ($k->subproject_count ?? 0) + ($k->tugas_count ?? 0);
+                return $k;
+            })
+            ->sortBy('total_tugas')
+            ->values();
         $vendors = \App\Models\Vendor::select('id_vendor', 'nama_vendor')->get();
 
         // Work Scope dari WOR yang terhubung ke project ini

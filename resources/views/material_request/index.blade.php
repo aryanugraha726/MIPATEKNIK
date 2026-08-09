@@ -3,8 +3,8 @@
 @section('content')
 <div class="mb-6 flex justify-between items-center">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900">Nota Permintaan Barang</h1>
-        <p class="text-sm text-gray-500">Daftar riwayat permintaan barang Anda</p>
+        <h1 class="text-2xl font-bold text-gray-900">Nota Material Request</h1>
+        <p class="text-sm text-gray-500">Daftar riwayat material request Anda</p>
     </div>
     <a href="{{ route('material-requests.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium shadow flex items-center gap-2">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -63,7 +63,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="5" class="p-8 text-center text-gray-500">Belum ada nota permintaan barang.</td>
+                <td colspan="5" class="p-8 text-center text-gray-500">Belum ada nota material request.</td>
             </tr>
             @endforelse
         </tbody>

@@ -1,9 +1,15 @@
 @extends('layout.app')
 
 @section('content')
+<style>
+    .ts-wrapper.item-select .ts-control {
+        padding: 0.5rem !important;
+        border-radius: 0.25rem !important;
+    }
+</style>
 <div class="max-w-4xl mx-auto">
     <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Buat Nota Permintaan Barang</h1>
+        <h1 class="text-2xl font-bold text-gray-900">Buat Nota Material Request</h1>
         <p class="text-sm text-gray-500">Isi form di bawah ini untuk mengajukan kebutuhan material {{ $isPurchasing ? '(Bypass Approval)' : '' }}</p>
     </div>
 
@@ -22,8 +28,8 @@
             @csrf
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Permintaan</label>
-                    <select name="kategori" id="kategoriSelect" required class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+                    <select name="kategori" id="kategoriSelect" required class="w-full">
                         <option value="Project" {{ old('kategori') == 'Project' ? 'selected' : '' }}>Project</option>
                         <option value="Internal" {{ old('kategori') == 'Internal' ? 'selected' : '' }}>Internal</option>
                         <option value="Stock" {{ old('kategori') == 'Stock' ? 'selected' : '' }}>Stock</option>
@@ -31,7 +37,7 @@
                 </div>
                 <div id="jobIdContainer">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Project (Job ID)</label>
-                    <select name="job_id" id="jobIdSelect" required class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="job_id" id="jobIdSelect" required class="w-full">
                         <option value="">-- Pilih Job ID --</option>
                         @foreach($jobIds as $jobId)
                             <option value="{{ $jobId }}" {{ old('job_id') == $jobId ? 'selected' : '' }}>{{ $jobId }}</option>
@@ -59,9 +65,9 @@
                     <thead>
                         <tr class="text-xs uppercase text-gray-500 border-b border-gray-200">
                             <th class="pb-2 font-medium">Barang</th>
-                            <th class="pb-2 font-medium w-48 hidden" id="thBarangBaru">Nama Barang Baru</th>
-                            <th class="pb-2 font-medium w-24 hidden" id="thSatuanBaru">Satuan</th>
+                            <th class="pb-2 font-medium w-48">Nama Barang Baru</th>
                             <th class="pb-2 font-medium w-32">Qty</th>
+                            <th class="pb-2 font-medium w-24">Satuan</th>
                             <th class="pb-2 font-medium w-16 text-right">Aksi</th>
                         </tr>
                     </thead>
@@ -87,27 +93,30 @@
         const tr = document.createElement('tr');
         
         let options = '<option value="">-- Pilih Barang --</option>';
-        options += '<option value="NEW_ITEM" class="font-bold text-blue-600">++ BARANG BARU (Belum Terdaftar) ++</option>';
+        options += '<option value="NEW_ITEM" class="font-bold">Tambah Barang Baru</option>';
         barangs.forEach(b => {
-            options += `<option value="${b.id_barang}">${b.nama_barang}</option>`;
+            let namaSatuan = b.satuan ? b.satuan.nama_satuan : (b.id_satuan || '-');
+            options += `<option value="${b.id_barang}" data-satuan="${namaSatuan}">${b.nama_barang}</option>`;
         });
 
         tr.innerHTML = `
-            <td class="py-3 pr-2">
-                <select name="items[${rowIndex}][id_barang]" class="item-select w-full p-2 border border-gray-300 rounded focus:ring-blue-500" required>
+            <td class="py-3 pr-2 align-top">
+                <select name="items[${rowIndex}][id_barang]" class="item-select w-full" required>
                     ${options}
                 </select>
             </td>
-            <td class="py-3 px-2 hidden new-item-col">
-                <input type="text" name="items[${rowIndex}][nama_barang_baru]" placeholder="Nama Barang..." class="w-full p-2 border border-gray-300 rounded focus:ring-blue-500">
+            <td class="py-3 px-2 align-top text-gray-500 text-sm">
+                <span class="existing-nama-baru block mt-2 text-center">-</span>
+                <input type="text" name="items[${rowIndex}][nama_barang_baru]" placeholder="Nama Barang..." class="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 new-item-input hidden">
             </td>
-            <td class="py-3 px-2 hidden new-item-col">
-                <input type="text" name="items[${rowIndex}][satuan_baru]" placeholder="Pcs/Ltr" class="w-full p-2 border border-gray-300 rounded focus:ring-blue-500">
-            </td>
-            <td class="py-3 px-2">
+            <td class="py-3 px-2 align-top">
                 <input type="number" name="items[${rowIndex}][req_qty]" min="1" required class="w-full p-2 border border-gray-300 rounded focus:ring-blue-500">
             </td>
-            <td class="py-3 pl-2 text-right">
+            <td class="py-3 px-2 align-top text-gray-500 text-sm">
+                <span class="existing-satuan block mt-2 text-center">-</span>
+                <input type="text" name="items[${rowIndex}][satuan_baru]" placeholder="Pcs/Ltr" class="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 new-item-input hidden">
+            </td>
+            <td class="py-3 pl-2 text-right align-top">
                 <button type="button" class="text-red-500 hover:bg-red-50 p-1.5 rounded remove-btn">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 </button>
@@ -126,7 +135,7 @@
             render: {
                 option: function(data, escape) {
                     if (data.value === 'NEW_ITEM') {
-                        return '<div class="font-bold text-blue-600">' + escape(data.text) + '</div>';
+                        return '<div class="font-bold">' + escape(data.text) + '</div>';
                     }
                     return '<div>' + escape(data.text) + '</div>';
                 }
@@ -136,25 +145,35 @@
         // Use Tom Select's 'change' event
         ts.on('change', function(val) {
             const isNew = val === 'NEW_ITEM';
-            const newCols = tr.querySelectorAll('.new-item-col');
-            const thBarang = document.getElementById('thBarangBaru');
-            const thSatuan = document.getElementById('thSatuanBaru');
+            const inputs = tr.querySelectorAll('.new-item-input');
+            const existingNamaBaru = tr.querySelector('.existing-nama-baru');
+            const existingSatuan = tr.querySelector('.existing-satuan');
             
             if (isNew) {
-                // selectEl.removeAttribute('required'); // TomSelect handles its own required state based on input
-                newCols.forEach(col => {
-                    col.classList.remove('hidden');
-                    col.querySelector('input').setAttribute('required', 'required');
+                inputs.forEach(input => {
+                    input.classList.remove('hidden');
+                    input.setAttribute('required', 'required');
                 });
-                thBarang.classList.remove('hidden');
-                thSatuan.classList.remove('hidden');
+                existingNamaBaru.classList.add('hidden');
+                existingSatuan.classList.add('hidden');
             } else {
-                // selectEl.setAttribute('required', 'required');
-                newCols.forEach(col => {
-                    col.classList.add('hidden');
-                    col.querySelector('input').removeAttribute('required');
-                    col.querySelector('input').value = '';
+                inputs.forEach(input => {
+                    input.classList.add('hidden');
+                    input.removeAttribute('required');
+                    input.value = '';
                 });
+                existingNamaBaru.classList.remove('hidden');
+                existingSatuan.classList.remove('hidden');
+                
+                if (val) {
+                    const option = selectEl.querySelector('option[value="' + val + '"]');
+                    if (option) {
+                        const satuan = option.getAttribute('data-satuan');
+                        existingSatuan.textContent = satuan || '-';
+                    }
+                } else {
+                    existingSatuan.textContent = '-';
+                }
             }
         });
 

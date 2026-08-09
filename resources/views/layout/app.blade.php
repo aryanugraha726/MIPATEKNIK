@@ -27,132 +27,207 @@
             {{-- MENU PPIC (ADMIN, PPIC) --}}
             {{-- ============================================= --}}
             @if(array_intersect(['ADMIN', 'PPIC'], $roles))
-            <div class="pt-6 pb-2">
-                <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">PPIC</p>
+            @php $isPpicActive = request()->routeIs('ppic.*') || request()->routeIs('projects.*') || request()->routeIs('subprojects.*') || request()->routeIs('tugas.*'); @endphp
+            <div class="pt-2">
+                <button onclick="document.getElementById('ppic-dropdown').classList.toggle('hidden'); document.getElementById('ppic-arrow').classList.toggle('rotate-180');" class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-800 rounded-lg focus:outline-none transition-colors">
+                    <span class="text-xs font-bold uppercase tracking-wider {{ $isPpicActive ? 'text-gray-300' : 'text-gray-500' }}">PPIC</span>
+                    <svg id="ppic-arrow" class="w-4 h-4 transition-transform duration-200 {{ $isPpicActive ? 'rotate-180 text-gray-300' : 'text-gray-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="ppic-dropdown" class="mt-1 space-y-1 {{ $isPpicActive ? '' : 'hidden' }}">
+                    <a href="{{ route('ppic.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('ppic.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Dashboard PPIC</span>
+                    </a>
+                    <a href="{{ route('projects.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('projects.*') || request()->routeIs('subprojects.*') || request()->routeIs('tugas.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Daftar Project</span>
+                    </a>
+                </div>
             </div>
-            <a href="{{ route('ppic.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('ppic.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Dashboard PPIC</span>
-            </a>
-            <a href="{{ route('projects.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('projects.*') || request()->routeIs('subprojects.*') || request()->routeIs('tugas.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Daftar Project</span>
-            </a>
             @endif
 
             {{-- ============================================= --}}
             {{-- MENU MARKETING (ADMIN, MARKETING) --}}
             {{-- ============================================= --}}
             @if(array_intersect(['ADMIN', 'MARKETING'], $roles))
-            <div class="pt-6 pb-2">
-                <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Marketing</p>
+            @php $isMktActive = request()->routeIs('wor.*'); @endphp
+            <div class="pt-2">
+                <button onclick="document.getElementById('mkt-dropdown').classList.toggle('hidden'); document.getElementById('mkt-arrow').classList.toggle('rotate-180');" class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-800 rounded-lg focus:outline-none transition-colors">
+                    <span class="text-xs font-bold uppercase tracking-wider {{ $isMktActive ? 'text-gray-300' : 'text-gray-500' }}">Marketing</span>
+                    <svg id="mkt-arrow" class="w-4 h-4 transition-transform duration-200 {{ $isMktActive ? 'rotate-180 text-gray-300' : 'text-gray-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="mkt-dropdown" class="mt-1 space-y-1 {{ $isMktActive ? '' : 'hidden' }}">
+                    <a href="{{ route('wor.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('wor.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Work Order Release</span>
+                    </a>
+                </div>
             </div>
-            <a href="{{ route('wor.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('wor.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Work Order Release</span>
-            </a>
             @endif
 
             {{-- ============================================= --}}
             {{-- MENU PURCHASING (ADMIN, PURCHASING) --}}
             {{-- ============================================= --}}
             @if(array_intersect(['ADMIN', 'PURCHASING'], $roles))
-            <div class="pt-6 pb-2">
-                <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Purchasing</p>
+            @php $isPurchActive = request()->routeIs('dashboard.*') || request()->routeIs('stock.*') || request()->routeIs('transaksi.*') || request()->routeIs('material-requests.*') || request()->routeIs('po.*') || request()->routeIs('shipping-address.*'); @endphp
+            <div class="pt-2">
+                <button onclick="document.getElementById('purchasing-dropdown').classList.toggle('hidden'); document.getElementById('purchasing-arrow').classList.toggle('rotate-180');" class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-800 rounded-lg focus:outline-none transition-colors">
+                    <span class="text-xs font-bold uppercase tracking-wider {{ $isPurchActive ? 'text-gray-300' : 'text-gray-500' }}">Purchasing</span>
+                    <svg id="purchasing-arrow" class="w-4 h-4 transition-transform duration-200 {{ $isPurchActive ? 'rotate-180 text-gray-300' : 'text-gray-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="purchasing-dropdown" class="mt-1 space-y-1 {{ $isPurchActive ? '' : 'hidden' }}">
+                    <a href="{{ route('dashboard.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('dashboard.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Dashboard Gudang</span>
+                    </a>
+                    <a href="{{ route('stock.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('stock.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Stock Opname</span>
+                    </a>
+                    <a href="{{ route('transaksi.antrean') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('transaksi.antrean') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Antrean Barang</span>
+                    </a>
+                    <a href="{{ route('transaksi.create') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('transaksi.create') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Input Transaksi</span>
+                    </a>
+                    <a href="{{ route('transaksi.masuk') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('transaksi.masuk') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Riwayat Masuk</span>
+                    </a>
+                    <a href="{{ route('transaksi.keluar') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('transaksi.keluar') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Riwayat Keluar</span>
+                    </a>
+                    <a href="{{ route('material-requests.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('material-requests.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Material Request</span>
+                    </a>
+                    <a href="{{ route('po.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('po.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Purchase Order</span>
+                    </a>
+                    <a href="{{ route('shipping-address.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('shipping-address.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Alamat Pengiriman</span>
+                    </a>
+                </div>
             </div>
-            <a href="{{ route('dashboard.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('dashboard.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Dashboard Gudang</span>
-            </a>
-            <a href="{{ route('stock.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('stock.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Stock Opname</span>
-            </a>
-            <a href="{{ route('barang.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('barang.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Daftar Barang</span>
-            </a>
-            <a href="{{ route('transaksi.antrean') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('transaksi.antrean') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Antrean Barang</span>
-            </a>
-            <a href="{{ route('transaksi.create') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('transaksi.create') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Input Transaksi</span>
-            </a>
-            <a href="{{ route('transaksi.masuk') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('transaksi.masuk') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Riwayat Masuk</span>
-            </a>
-            <a href="{{ route('transaksi.keluar') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('transaksi.keluar') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Riwayat Keluar</span>
-            </a>
-            <a href="{{ route('material-requests.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('material-requests.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Permintaan Barang</span>
-            </a>
-            <a href="{{ route('po.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('po.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Purchase Order</span>
-            </a>
-            <a href="{{ route('shipping-address.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('shipping-address.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Alamat Pengiriman</span>
-            </a>
             @endif
 
             {{-- ============================================= --}}
             {{-- MENU KARYAWAN (KARYAWAN) --}}
             {{-- ============================================= --}}
             @if(array_intersect(['ADMIN', 'KARYAWAN'], $roles))
-            <div class="pt-6 pb-2">
-                <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Karyawan</p>
+            @php $isKaryawanActive = request()->routeIs('karyawan.projects') || request()->routeIs('material-requests.*'); @endphp
+            <div class="pt-2">
+                <button onclick="document.getElementById('karyawan-dropdown').classList.toggle('hidden'); document.getElementById('karyawan-arrow').classList.toggle('rotate-180');" class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-800 rounded-lg focus:outline-none transition-colors">
+                    <span class="text-xs font-bold uppercase tracking-wider {{ $isKaryawanActive ? 'text-gray-300' : 'text-gray-500' }}">Karyawan</span>
+                    <svg id="karyawan-arrow" class="w-4 h-4 transition-transform duration-200 {{ $isKaryawanActive ? 'rotate-180 text-gray-300' : 'text-gray-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="karyawan-dropdown" class="mt-1 space-y-1 {{ $isKaryawanActive ? '' : 'hidden' }}">
+                    <a href="{{ route('karyawan.projects') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('karyawan.projects') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Project Saya</span>
+                    </a>
+                    <a href="{{ route('material-requests.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('material-requests.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Material Request</span>
+                    </a>
+                </div>
             </div>
-            <a href="{{ route('karyawan.projects') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('karyawan.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Project Saya</span>
-            </a>
-            <a href="{{ route('material-requests.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('material-requests.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Permintaan Barang</span>
-            </a>
             @endif
 
             {{-- ============================================= --}}
             {{-- MENU MANAGEMENT --}}
             {{-- ============================================= --}}
             @if(array_intersect(['ADMIN', 'MANAGEMENT'], $roles))
-            <div class="pt-6 pb-2">
-                <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Management</p>
+            @php $isManagerActive = request()->routeIs('manager_approval.*'); @endphp
+            <div class="pt-2">
+                <button onclick="document.getElementById('manager-dropdown').classList.toggle('hidden'); document.getElementById('manager-arrow').classList.toggle('rotate-180');" class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-800 rounded-lg focus:outline-none transition-colors">
+                    <span class="text-xs font-bold uppercase tracking-wider {{ $isManagerActive ? 'text-gray-300' : 'text-gray-500' }}">Management</span>
+                    <svg id="manager-arrow" class="w-4 h-4 transition-transform duration-200 {{ $isManagerActive ? 'rotate-180 text-gray-300' : 'text-gray-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="manager-dropdown" class="mt-1 space-y-1 {{ $isManagerActive ? '' : 'hidden' }}">
+                    <a href="{{ route('manager_approval.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('manager_approval.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Persetujuan Manager</span>
+                    </a>
+                </div>
             </div>
-            <a href="{{ route('manager_approval.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('manager_approval.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Persetujuan Manager</span>
-            </a>
             @endif
 
             {{-- ============================================= --}}
             {{-- MENU DIREKTUR UTAMA (DIREKTUR UTAMA) --}}
             {{-- ============================================= --}}
             @if(array_intersect(['ADMIN', 'DIREKTUR UTAMA'], $roles))
-            <div class="pt-6 pb-2">
-                <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Direktur Utama</p>
+            @php $isDirActive = request()->routeIs('direktur.stock') || request()->routeIs('dashboard.*') || request()->routeIs('ppic.index') || request()->routeIs('po.*') || request()->routeIs('wor.*'); @endphp
+            <div class="pt-2">
+                <button onclick="document.getElementById('dir-dropdown').classList.toggle('hidden'); document.getElementById('dir-arrow').classList.toggle('rotate-180');" class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-800 rounded-lg focus:outline-none transition-colors">
+                    <span class="text-xs font-bold uppercase tracking-wider {{ $isDirActive ? 'text-gray-300' : 'text-gray-500' }}">Direktur Utama</span>
+                    <svg id="dir-arrow" class="w-4 h-4 transition-transform duration-200 {{ $isDirActive ? 'rotate-180 text-gray-300' : 'text-gray-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="dir-dropdown" class="mt-1 space-y-1 {{ $isDirActive ? '' : 'hidden' }}">
+                    <a href="{{ route('dashboard.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('dashboard.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Dashboard Gudang</span>
+                    </a>
+                    <a href="{{ route('direktur.stock') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('direktur.stock') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Stock Opname</span>
+                    </a>
+                    <a href="{{ route('ppic.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('ppic.index') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Jadwal Project (Gantt)</span>
+                    </a>
+                    <a href="{{ route('po.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('po.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Persetujuan PO</span>
+                    </a>
+                    <a href="{{ route('wor.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('wor.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Persetujuan WOR</span>
+                    </a>
+                </div>
             </div>
-            <a href="{{ route('dashboard.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('dashboard.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Dashboard Gudang</span>
-            </a>
-            <a href="{{ route('direktur.stock') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('direktur.stock') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Stock Opname</span>
-            </a>
-            <a href="{{ route('ppic.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('ppic.index') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Jadwal Project (Gantt)</span>
-            </a>
-            <a href="{{ route('po.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('po.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Persetujuan PO</span>
-            </a>
-            <a href="{{ route('wor.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('wor.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Persetujuan WOR</span>
-            </a>
             @endif
 
             {{-- ============================================= --}}
-            {{-- MENU ADMINISTRATOR (ADMIN saja) --}}
+            {{-- MENU ADMINISTRATOR / HRD / PURCHASING / PPIC --}}
             {{-- ============================================= --}}
-            @if(in_array('ADMIN', $roles))
-            <div class="pt-6 pb-2">
-                <p class="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Administrator</p>
+            @if(array_intersect(['ADMIN', 'HRD', 'PURCHASING', 'PPIC'], $roles))
+            @php
+                $isMasterDataActive = request()->is('master-data*') || request()->is('divisi*') || request()->is('karyawan*') || request()->is('vendor*') || request()->is('satuan*') || request()->is('kategori*') || request()->is('management*') || request()->is('barang*') || request()->is('users*');
+            @endphp
+            <div class="pt-2">
+                <button onclick="document.getElementById('master-data-dropdown').classList.toggle('hidden'); document.getElementById('master-data-arrow').classList.toggle('rotate-180');" class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-800 rounded-lg focus:outline-none transition-colors">
+                    <span class="text-xs font-bold uppercase tracking-wider {{ $isMasterDataActive ? 'text-gray-300' : 'text-gray-500' }}">
+                        {{ in_array('ADMIN', $roles) ? 'Administrator' : (in_array('HRD', $roles) ? 'HRD' : 'Master Data') }}
+                    </span>
+                    <svg id="master-data-arrow" class="w-4 h-4 transition-transform duration-200 {{ $isMasterDataActive ? 'rotate-180 text-gray-300' : 'text-gray-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                
+                <div id="master-data-dropdown" class="mt-1 space-y-1 {{ $isMasterDataActive ? '' : 'hidden' }}">
+                    @if(array_intersect(['ADMIN', 'HRD', 'PURCHASING'], $roles))
+                    <a href="{{ route('master-data.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('master-data.index') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Beranda Master Data</span>
+                    </a>
+                    @endif
+                    @if(array_intersect(['ADMIN', 'HRD'], $roles))
+                    <a href="{{ route('divisi.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('divisi.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Divisi</span>
+                    </a>
+                    <a href="{{ route('karyawan.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('karyawan.*') && !request()->routeIs('karyawan.projects') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Karyawan</span>
+                    </a>
+                    <a href="{{ route('management.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('management.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Management</span>
+                    </a>
+                    @endif
+                    @if(array_intersect(['ADMIN', 'PURCHASING', 'PPIC'], $roles))
+                    <a href="{{ route('vendor.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('vendor.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Vendor</span>
+                    </a>
+                    @endif
+                    @if(array_intersect(['ADMIN', 'PURCHASING'], $roles))
+                    <a href="{{ route('barang.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('barang.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Master Barang</span>
+                    </a>
+                    <a href="{{ route('kategori.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('kategori.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Kategori Barang</span>
+                    </a>
+                    <a href="{{ route('satuan.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('satuan.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Satuan</span>
+                    </a>
+                    @endif
+                    @if(in_array('ADMIN', $roles))
+                    <a href="{{ route('users.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('users.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Manajemen Akun</span>
+                    </a>
+                    @endif
+                </div>
             </div>
-            <a href="{{ route('master-data.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->is('master-data*') || request()->is('divisi*') || request()->is('karyawan*') || request()->is('vendor*') || request()->is('satuan*') || request()->is('kategori*') || request()->is('management*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Master Data</span>
-            </a>
-            <a href="{{ route('users.index') }}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors {{ request()->routeIs('users.*') ? 'bg-blue-600 text-white shadow-sm' : '' }}">
-                <span class="font-medium text-sm">Manajemen Akun</span>
-            </a>
             @endif
         </nav>
         

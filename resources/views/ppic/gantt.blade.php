@@ -1,4 +1,8 @@
 @extends('layout.app')
+@php
+    $roles = auth()->user()->roles();
+    $canEditGantt = count(array_intersect(['ADMIN', 'PPIC'], $roles)) > 0;
+@endphp
 
 @section('content')
 <style>
@@ -26,11 +30,11 @@
     .existing-subproject { background-color: #818cf8 !important; cursor: not-allowed; border-radius:2px;}
     .existing-tugas { background-color: #34d399 !important; cursor: not-allowed; border-radius:2px;}
     
-    .sticky-col-1 { position: sticky; left: 0px; z-index: 20; background-color: inherit; border-right: 2px solid #e5e7eb;}
-    .sticky-col-2 { position: sticky; left: 200px; z-index: 20; background-color: inherit; }
-    .sticky-col-3 { position: sticky; left: 320px; z-index: 20; background-color: inherit; border-right: 2px solid #e5e7eb;}
-    .sticky-col-4 { position: sticky; left: 440px; z-index: 20; background-color: inherit; }
-    .sticky-col-5 { position: sticky; left: 490px; z-index: 20; background-color: inherit; border-right: 2px solid #e5e7eb;}
+    .sticky-col-1 { position: sticky; left: 0px; z-index: 20; background-color: inherit; border-right: 1px solid #d1d5db; }
+    .sticky-col-2 { position: sticky; left: 200px; z-index: 20; background-color: inherit; border-right: 1px solid #e5e7eb; }
+    .sticky-col-3 { position: sticky; left: 320px; z-index: 20; background-color: inherit; border-right: 1px solid #d1d5db; }
+    .sticky-col-4 { position: sticky; left: 440px; z-index: 20; background-color: inherit; border-right: 1px solid #e5e7eb; }
+    .sticky-col-5 { position: sticky; left: 490px; z-index: 20; background-color: inherit; border-right: 1px solid #d1d5db; }
     
 </style>
 
@@ -62,34 +66,36 @@
         </div>
     </div>
 
+    @if($canEditGantt)
     <div class="mb-3">
         <button type="button" onclick="openSubproyekModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 px-3 rounded shadow-sm text-xs transition">
             + Tambah Subproyek
         </button>
     </div>
+    @endif
 
     <form action="{{ route('subprojects.bulkStore', $project->job_id) }}" method="POST" id="submit_form">
         @csrf
         <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-inner bg-gray-50 pb-2 relative" style="max-height: 65vh;">
-            <table class="w-full text-left border-collapse min-w-max text-xs" id="timeline_table">
+            <table class="w-full text-left border-separate border-spacing-0 min-w-max text-xs" id="timeline_table">
                 <thead class="sticky top-0 z-30" id="table_thead">
                     <!-- Header akan diisi oleh JS -->
                 </thead>
                 <tbody id="table_body" class="divide-y divide-gray-200 bg-white">
                     <!-- Data Existing (Interactive) -->
                     @foreach($project->subprojects as $i => $sub)
-                        <tr class="bg-indigo-50/30 subproject-row new-row text-xs" data-sub-idx="exist_s_{{ $i }}" data-row-id="exist_s_{{ $i }}">
+                        <tr class="bg-gray-50 subproject-row new-row text-xs" data-sub-idx="exist_s_{{ $i }}" data-row-id="exist_s_{{ $i }}">
                             <td class="p-0 border-r border-gray-200 sticky-col-1 w-[200px]">
                                 <div class="flex items-center w-full h-6">
                                     <span class="text-indigo-600 font-bold mx-1">■</span>
                                     <input type="hidden" name="subproyek[exist_s_{{ $i }}][id]" value="{{ $sub->subproject_id }}">
-                                    <input type="text" name="subproyek[exist_s_{{ $i }}][nama]" required value="{{ $sub->nama_subproject }}" placeholder="Nama Subproyek..." class="w-full h-full px-1 border-0 focus:outline-none focus:bg-white/50 bg-transparent text-xs font-bold text-indigo-800">
+                                    <input type="text" name="subproyek[exist_s_{{ $i }}][nama]" required value="{{ $sub->nama_subproject }}" placeholder="Nama Subproyek..." class="w-full h-full px-1 border-0 focus:outline-none focus:bg-white/50 bg-transparent text-xs font-bold text-indigo-800" {{ !$canEditGantt ? 'readonly' : '' }}>
                                 </div>
                                 <input type="hidden" name="subproyek[exist_s_{{ $i }}][mulai]" class="start-date-input" value="{{ date('Y-m-d', strtotime($sub->start_subproject)) }}">
                                 <input type="hidden" name="subproyek[exist_s_{{ $i }}][selesai]" class="end-date-input" value="{{ date('Y-m-d', strtotime($sub->target_subproject)) }}">
                             </td>
                             <td class="p-0 border-r border-gray-200 sticky-col-2 w-[120px]">
-                                <select name="subproyek[exist_s_{{ $i }}][management_id]" required class="no-search gantt-select w-full h-6 py-0 px-0.5 border-0 focus:outline-none focus:bg-white/50 bg-transparent text-xs text-gray-700">
+                                <select name="subproyek[exist_s_{{ $i }}][management_id]" required class="no-search gantt-select w-full h-6 py-0 px-0.5 border-0 focus:outline-none focus:bg-white/50 bg-transparent text-xs text-gray-700" {{ !$canEditGantt ? 'disabled' : '' }}>
                                     <option value="">- P.Jawab -</option>
                                     @foreach($managements as $m)
                                         <option value="{{ $m->management_id }}" data-short="{{ $m->karyawan->nm_karyawan ?? 'Unknown' }}" data-full="{{ $m->karyawan->nm_karyawan ?? 'Unknown' }} ({{ $subprojectCounts[$m->management_id] ?? 0 }} sub)" {{ $sub->management_id == $m->management_id ? 'selected' : '' }}>{{ $m->karyawan->nm_karyawan ?? 'Unknown' }} ({{ $subprojectCounts[$m->management_id] ?? 0 }} sub)</option>
@@ -97,7 +103,7 @@
                                 </select>
                             </td>
                             <td class="p-0 border-r border-gray-200 sticky-col-3 w-[120px]">
-                                <select name="subproyek[exist_s_{{ $i }}][id_karyawan]" class="no-search gantt-select w-full h-6 py-0 px-0.5 border-0 focus:outline-none focus:bg-white/50 bg-transparent text-xs text-gray-700">
+                                <select name="subproyek[exist_s_{{ $i }}][id_karyawan]" class="no-search gantt-select w-full h-6 py-0 px-0.5 border-0 focus:outline-none focus:bg-white/50 bg-transparent text-xs text-gray-700" {{ !$canEditGantt ? 'disabled' : '' }}>
                                     <option value="">- Operator -</option>
                                     @foreach($karyawans as $k)
                                         <option value="{{ $k->id_karyawan }}" data-short="{{ $k->nm_karyawan }}" data-full="{{ $k->nm_karyawan }} ({{ $tugasCounts[$k->id_karyawan] ?? 0 }} tugas)" {{ $sub->id_karyawan == $k->id_karyawan ? 'selected' : '' }}>{{ $k->nm_karyawan }} ({{ $tugasCounts[$k->id_karyawan] ?? 0 }} tugas)</option>
@@ -111,19 +117,19 @@
                         </tr>
                         
                         @foreach($sub->tugas as $j => $tugas)
-                            <tr class="bg-emerald-50/20 tugas-row new-row child-of-exist_s_{{ $i }} text-xs" data-row-id="exist_t_{{ $i }}_{{ $j }}">
+                            <tr class="bg-emerald-50 tugas-row new-row child-of-exist_s_{{ $i }} text-xs" data-row-id="exist_t_{{ $i }}_{{ $j }}">
                                 <td class="p-0 pl-4 border-r border-gray-200 sticky-col-1 w-[200px]">
                                     <div class="flex items-center w-full h-6">
                                         <span class="text-emerald-500 font-bold mr-1">↳</span>
                                         <input type="hidden" name="subproyek[exist_s_{{ $i }}][tugas][exist_t_{{ $j }}][id]" value="{{ $tugas->tugas_id }}">
-                                        <input type="text" name="subproyek[exist_s_{{ $i }}][tugas][exist_t_{{ $j }}][nama]" required value="{{ $tugas->tugas }}" placeholder="Tugas..." class="w-full h-full px-1 border-0 focus:outline-none focus:bg-white/50 bg-transparent text-xs text-gray-700">
+                                        <input type="text" name="subproyek[exist_s_{{ $i }}][tugas][exist_t_{{ $j }}][nama]" required value="{{ $tugas->tugas }}" placeholder="Tugas..." class="w-full h-full px-1 border-0 focus:outline-none focus:bg-white/50 bg-transparent text-xs text-gray-700" {{ !$canEditGantt ? 'readonly' : '' }}>
                                     </div>
                                     <input type="hidden" name="subproyek[exist_s_{{ $i }}][tugas][exist_t_{{ $j }}][mulai]" class="start-date-input" value="{{ date('Y-m-d', strtotime($tugas->start_tugas)) }}">
                                     <input type="hidden" name="subproyek[exist_s_{{ $i }}][tugas][exist_t_{{ $j }}][selesai]" class="end-date-input" value="{{ date('Y-m-d', strtotime($tugas->target_tugas)) }}">
                                 </td>
                                 <td class="p-0 border-r border-gray-200 sticky-col-2 w-[120px] text-center text-gray-400 text-xs">-</td>
                                 <td class="p-0 border-r border-gray-200 sticky-col-3 w-[120px]">
-                                    <select name="subproyek[exist_s_{{ $i }}][tugas][exist_t_{{ $j }}][id_karyawan]" required class="no-search gantt-select w-full h-6 py-0 px-0.5 border-0 focus:outline-none focus:bg-white/50 bg-transparent text-xs text-gray-700">
+                                    <select name="subproyek[exist_s_{{ $i }}][tugas][exist_t_{{ $j }}][id_karyawan]" required class="no-search gantt-select w-full h-6 py-0 px-0.5 border-0 focus:outline-none focus:bg-white/50 bg-transparent text-xs text-gray-700" {{ !$canEditGantt ? 'disabled' : '' }}>
                                         <option value="">- Operator -</option>
                                         @foreach($karyawans as $k)
                                             <option value="{{ $k->id_karyawan }}" data-short="{{ $k->nm_karyawan }}" data-full="{{ $k->nm_karyawan }} ({{ $tugasCounts[$k->id_karyawan] ?? 0 }} tugas)" {{ $tugas->id_karyawan == $k->id_karyawan ? 'selected' : '' }}>{{ $k->nm_karyawan }} ({{ $tugasCounts[$k->id_karyawan] ?? 0 }} tugas)</option>
@@ -131,10 +137,10 @@
                                     </select>
                                 </td>
                                 <td class="p-0 border-r border-gray-200 sticky-col-4 w-[50px]">
-                                    <input type="number" name="subproyek[exist_s_{{ $i }}][tugas][exist_t_{{ $j }}][qty]" value="{{ $tugas->qty }}" placeholder="Qty" class="w-full h-6 py-0 px-1 border-0 focus:outline-none focus:bg-white/50 bg-transparent text-xs text-center">
+                                    <input type="number" name="subproyek[exist_s_{{ $i }}][tugas][exist_t_{{ $j }}][qty]" value="{{ $tugas->qty }}" placeholder="Qty" class="w-full h-6 py-0 px-1 border-0 focus:outline-none focus:bg-white/50 bg-transparent text-xs text-center" {{ !$canEditGantt ? 'readonly' : '' }}>
                                 </td>
                                 <td class="p-0 border-r border-gray-200 sticky-col-5 w-[50px]">
-                                    <input type="text" name="subproyek[exist_s_{{ $i }}][tugas][exist_t_{{ $j }}][unit]" value="{{ $tugas->unit }}" placeholder="Unit" class="w-full h-6 py-0 px-1 border-0 focus:outline-none focus:bg-white/50 bg-transparent text-xs text-center">
+                                    <input type="text" name="subproyek[exist_s_{{ $i }}][tugas][exist_t_{{ $j }}][unit]" value="{{ $tugas->unit }}" placeholder="Unit" class="w-full h-6 py-0 px-1 border-0 focus:outline-none focus:bg-white/50 bg-transparent text-xs text-center" {{ !$canEditGantt ? 'readonly' : '' }}>
                                 </td>
                                 
                                 <td class="existing-timeline-placeholder" data-start="{{ date('Y-m-d', strtotime($tugas->start_tugas)) }}" data-end="{{ date('Y-m-d', strtotime($tugas->target_tugas)) }}" data-type="tugas" data-row-id="exist_t_{{ $i }}_{{ $j }}"></td>
@@ -145,11 +151,13 @@
             </table>
         </div>
 
+        @if($canEditGantt)
         <div class="mt-4 flex justify-end">
             <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded shadow transition text-sm">
                 Simpan Subproyek & Tugas Baru
             </button>
         </div>
+        @endif
     </form>
 </div>
 
@@ -160,7 +168,7 @@
         <!-- Header -->
         <div class="bg-indigo-600 px-6 py-4 flex items-center justify-between">
             <h2 class="text-white font-bold text-base flex items-center gap-2">
-                <span class="text-lg">■</span> Tambah Subproyek Baru
+                Tambah Subproyek Baru
             </h2>
             <button onclick="closeSubproyekModal()" class="text-white/70 hover:text-white text-xl font-bold">&times;</button>
         </div>
@@ -169,9 +177,9 @@
 
             @if(count($workScope) > 0)
             <div>
-                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Ambil dari Work Scope WOR</label>
+                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Ambil dari WOR</label>
                 <select id="modal_sub_wor" class="no-search block w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none bg-white">
-                    <option value="">-- Pilih Work Scope (opsional) --</option>
+                    <option value="">-- Pilih Work Scope --</option>
                     @foreach($workScope as $idx => $ws)
                         <option value="{{ $idx }}" data-part="{{ $ws['part_description'] ?? '' }}">{{ $ws['part_description'] ?? 'Item '.($idx+1) }} – {{ $ws['qty'] ?? '' }} {{ $ws['unit'] ?? '' }}</option>
                     @endforeach
@@ -204,17 +212,17 @@
                 <select id="modal_sub_management" class="no-search block w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none bg-white">
                     <option value="">-- Pilih Penanggung Jawab --</option>
                     @foreach($managements as $m)
-                        <option value="{{ $m->management_id }}">{{ $m->karyawan->nm_karyawan ?? 'Unknown' }} ({{ $subprojectCounts[$m->management_id] ?? 0 }} sub aktif)</option>
+                        <option value="{{ $m->management_id }}" data-divisi="{{ $m->id_divisi ?? '' }}">{{ $m->nm_karyawan ?? 'Unknown' }} ({{ $subprojectCounts[$m->management_id] ?? 0 }} sub aktif)</option>
                     @endforeach
                 </select>
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Operator (Opsional)</label>
+                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Operator</label>
                 <select id="modal_sub_operator" class="no-search block w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none bg-white">
                     <option value="">-- Pilih Operator --</option>
                     @foreach($karyawans as $k)
-                        <option value="{{ $k->id_karyawan }}">{{ $k->nm_karyawan }} ({{ ($k->subproject_count ?? 0) + ($k->tugas_count ?? 0) }} tugas aktif)</option>
+                        <option value="{{ $k->id_karyawan }}" data-divisi="{{ $k->id_divisi ?? '' }}">{{ $k->nm_karyawan }} ({{ ($k->subproject_count ?? 0) + ($k->tugas_count ?? 0) }} tugas aktif)</option>
                     @endforeach
                 </select>
             </div>
@@ -234,7 +242,7 @@
         <!-- Header -->
         <div class="bg-emerald-600 px-6 py-4 flex items-center justify-between">
             <h2 class="text-white font-bold text-base flex items-center gap-2">
-                <span class="text-lg">↳</span> Tambah Tugas Baru
+                Tambah Tugas Baru
             </h2>
             <button onclick="closeTugasModal()" class="text-white/70 hover:text-white text-xl font-bold">&times;</button>
         </div>
@@ -243,9 +251,9 @@
 
             @if(count($workScope) > 0)
             <div>
-                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Ambil dari Work Scope WOR</label>
+                <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Ambil dari WOR</label>
                 <select id="modal_tgs_wor" class="no-search block w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-400 focus:outline-none bg-white">
-                    <option value="">-- Pilih Work Scope (opsional) --</option>
+                    <option value="">-- Pilih Work Scope --</option>
                     @foreach($workScope as $idx => $ws)
                         <option value="{{ $idx }}" data-part="{{ $ws['part_description'] ?? '' }}" data-qty="{{ $ws['qty'] ?? '' }}" data-unit="{{ $ws['unit'] ?? '' }}">{{ $ws['part_description'] ?? 'Item '.($idx+1) }} – {{ $ws['qty'] ?? '' }} {{ $ws['unit'] ?? '' }}</option>
                     @endforeach
@@ -285,19 +293,19 @@
             </div>
 
             <div class="border-t border-gray-200 pt-4">
-                <p class="text-xs text-gray-500 mb-3">Pilih <strong>Operator</strong> jika dikerjakan internal, atau <strong>Vendor</strong> jika pihak ketiga. Bisa dikosongkan.</p>
+                <p class="text-xs text-gray-500 mb-3">Pilih <strong>Operator</strong> jika dikerjakan internal, atau <strong>Vendor</strong> jika pihak ketiga.</p>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Operator (Internal)</label>
+                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Operator</label>
                         <select id="modal_tgs_operator" class="no-search block w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-400 focus:outline-none bg-white">
                             <option value="">-- Pilih Operator --</option>
                             @foreach($karyawans as $k)
-                                <option value="{{ $k->id_karyawan }}">{{ $k->nm_karyawan }} ({{ ($k->subproject_count ?? 0) + ($k->tugas_count ?? 0) }} aktif)</option>
+                                <option value="{{ $k->id_karyawan }}" data-divisi="{{ $k->id_divisi ?? '' }}">{{ $k->nm_karyawan }} ({{ ($k->subproject_count ?? 0) + ($k->tugas_count ?? 0) }} aktif)</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Vendor (Eksternal)</label>
+                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Vendor</label>
                         <select id="modal_tgs_vendor" class="no-search block w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-400 focus:outline-none bg-white">
                             <option value="">-- Pilih Vendor --</option>
                             @foreach($vendors as $v)
@@ -444,9 +452,60 @@
     }
 
     // ============================================================
+    // FILTER OPERATOR
+    // ============================================================
+    const managementDivisi = {
+        @foreach($managements as $m)
+        "{{ $m->management_id }}": "{{ $m->id_divisi ?? '' }}",
+        @endforeach
+    };
+
+    function sortOperatorsByDivisi(selectId, divisiIdStr) {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        
+        const currentVal = select.value;
+        const allowedDivs = divisiIdStr ? divisiIdStr.split(',').map(d => d.trim()) : [];
+        
+        const options = Array.from(select.options);
+        const placeholder = options.filter(opt => opt.value === '');
+        const matches = [];
+        const nonMatches = [];
+        
+        options.filter(opt => opt.value !== '').forEach(opt => {
+            opt.style.display = '';
+            opt.hidden = false;
+            opt.disabled = false;
+            
+            if (allowedDivs.length === 0) {
+                matches.push(opt);
+            } else {
+                const optDivStr = opt.getAttribute('data-divisi') || '';
+                const optDivs = optDivStr ? optDivStr.split(',').map(d => d.trim()) : [];
+                const isMatch = optDivs.some(d => allowedDivs.includes(d));
+                
+                if (isMatch) matches.push(opt);
+                else nonMatches.push(opt);
+            }
+        });
+        
+        select.innerHTML = '';
+        placeholder.forEach(opt => select.appendChild(opt));
+        matches.forEach(opt => select.appendChild(opt));
+        nonMatches.forEach(opt => select.appendChild(opt));
+        
+        select.value = currentVal || '';
+    }
+
+    // ============================================================
     // MODAL SUBPROYEK — event listeners
     // ============================================================
     document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('modal_sub_management')?.addEventListener('change', function() {
+            const divId = this.options[this.selectedIndex]?.getAttribute('data-divisi') || '';
+            sortOperatorsByDivisi('modal_sub_operator', divId);
+        });
+
         // WOR autocomplete subproyek
         const worSub = document.getElementById('modal_sub_wor');
         if (worSub) {
@@ -555,7 +614,7 @@
         const tbody = document.getElementById('table_body');
         const datesArray = getCurrentDatesArray();
         const row = document.createElement('tr');
-        row.className = 'bg-indigo-50/30 subproject-row new-row text-xs';
+        row.className = 'bg-gray-50 subproject-row new-row text-xs';
         row.dataset.subIdx = 's_' + subIdx;
         row.dataset.rowId  = 's_' + subIdx;
         rowStates['s_' + subIdx] = { start: mulai ? new Date(mulai) : null, end: selesai ? new Date(selesai) : null, type: 'subproject' };
@@ -619,6 +678,16 @@
         document.getElementById('modal_tgs_durasi').value  = 1;
         document.getElementById('modal_tgs_operator').value = '';
         document.getElementById('modal_tgs_vendor').value   = '';
+        
+        let mId = '';
+        const mSelect = document.querySelector(`select[name="subproyek[${parentSubIdx}][management_id]"]`);
+        if (mSelect) mId = mSelect.value;
+        else {
+            const mHidden = document.querySelector(`input[name="subproyek[${parentSubIdx}][management_id]"]`);
+            if (mHidden) mId = mHidden.value;
+        }
+        sortOperatorsByDivisi('modal_tgs_operator', mId ? (managementDivisi[mId] || '') : '');
+        
         const worEl = document.getElementById('modal_tgs_wor');
         if (worEl) worEl.value = '';
         document.getElementById('modal-tugas').classList.remove('hidden');
@@ -645,7 +714,7 @@
         tugasGlobalIdx++;
         const datesArray = getCurrentDatesArray();
         const tr = document.createElement('tr');
-        tr.className = 'bg-emerald-50/20 tugas-row new-row child-of-' + parentSubIdx + ' text-xs';
+        tr.className = 'bg-emerald-50 tugas-row new-row child-of-' + parentSubIdx + ' text-xs';
         tr.dataset.rowId = 't_' + tugasGlobalIdx;
         rowStates['t_' + tugasGlobalIdx] = { start: mulai ? new Date(mulai) : null, end: selesai ? new Date(selesai) : null, type: 'tugas' };
 

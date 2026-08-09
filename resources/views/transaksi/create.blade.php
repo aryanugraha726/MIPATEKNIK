@@ -150,7 +150,7 @@
                     <!-- KELUAR MR -->
                     <div id="keluar_mr" style="display: none;">
                         <div class="bg-indigo-50 border border-indigo-100 p-6 rounded-lg mb-6">
-                            <label class="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide">Pilih Nota Permintaan Barang <span class="text-red-500">*</span></label>
+                            <label class="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide">Pilih Nota Material Request <span class="text-red-500">*</span></label>
                             <select name="no_nota" id="no_nota" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" onchange="fetchMrDetails()">
                                 <option value="">-- Pilih Nomor Nota --</option>
                                 @if(isset($mrs))
@@ -334,7 +334,7 @@
                 });
             })
             .catch(error => {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-red-500">Gagal memuat data Permintaan Barang.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-red-500">Gagal memuat data Material Request.</td></tr>';
                 console.error('Error fetching MR details:', error);
             });
     }
