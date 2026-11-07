@@ -32,7 +32,7 @@ class POController extends Controller
         return view('po.index', compact('pos'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $user = Auth::user();
         if (!array_intersect(['ADMIN', 'PURCHASING'], $user->roles())) {
@@ -46,7 +46,12 @@ class POController extends Controller
         $kategoris = \App\Models\KategoriBarang::all();
         $satuans = \App\Models\Satuan::all();
 
-        return view('po.create', compact('vendors', 'shippingAddresses', 'projects', 'barangs', 'kategoris', 'satuans'));
+        $prefill = [
+            'id_barang' => $request->query('id_barang'),
+            'qty' => $request->query('qty')
+        ];
+
+        return view('po.create', compact('vendors', 'shippingAddresses', 'projects', 'barangs', 'kategoris', 'satuans', 'prefill'));
     }
 
     public function store(Request $request)

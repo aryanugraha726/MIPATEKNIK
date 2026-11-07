@@ -41,28 +41,39 @@ class DashboardController extends Controller
 
         // 6. Data Chart (Pergerakan Barang) dengan Filter
         $filter = $request->get('filter', '6_bulan');
+        $offset = (int) $request->get('offset', 0); // 0 = current, 1 = 1 period back, 2 = 2 periods back, dll
+
         $chartLabels = [];
         $chartMasuk = [];
         $chartKeluar = [];
-        $chartTitle = "6 Bulan Terakhir";
+        
+        $periodLabel = $offset == 0 ? "Terakhir" : ($offset . " Periode Lalu");
 
         if ($filter === 'mingguan') {
-            $chartTitle = "7 Hari Terakhir";
-            $startDate = date('Y-m-d', strtotime('-6 days'));
-            $masukData = DB::table('barang_masuk')->where('tgl_masuk', '>=', $startDate)->selectRaw('DATE(tgl_masuk) as date, SUM(jml_masuk) as total')->groupBy('date')->pluck('total', 'date');
-            $keluarData = DB::table('barang_keluar')->where('tgl_keluar', '>=', $startDate)->selectRaw('DATE(tgl_keluar) as date, SUM(jumlah_keluar) as total')->groupBy('date')->pluck('total', 'date');
+            $chartTitle = "7 Hari ($periodLabel)";
+            $offsetDays = $offset * 7;
+            
+            $startDate = date('Y-m-d', strtotime('-' . (6 + $offsetDays) . ' days'));
+            $endDate = date('Y-m-d', strtotime('-' . $offsetDays . ' days'));
+            
+            $masukData = DB::table('barang_masuk')->whereBetween('tgl_masuk', [$startDate, $endDate])->selectRaw('DATE(tgl_masuk) as date, SUM(jml_masuk) as total')->groupBy('date')->pluck('total', 'date');
+            $keluarData = DB::table('barang_keluar')->whereBetween('tgl_keluar', [$startDate, $endDate])->selectRaw('DATE(tgl_keluar) as date, SUM(jumlah_keluar) as total')->groupBy('date')->pluck('total', 'date');
 
             for ($i = 6; $i >= 0; $i--) {
-                $date = date('Y-m-d', strtotime("-$i days"));
+                $daysAgo = $i + $offsetDays;
+                $date = date('Y-m-d', strtotime("-$daysAgo days"));
                 $chartLabels[] = date('d M', strtotime($date));
                 $chartMasuk[] = (float) ($masukData[$date] ?? 0);
                 $chartKeluar[] = (float) ($keluarData[$date] ?? 0);
             }
         } elseif ($filter === 'bulanan') {
-            $chartTitle = "4 Minggu Terakhir";
+            $chartTitle = "4 Minggu ($periodLabel)";
+            $offsetWeeks = $offset * 4;
+            
             for ($i = 3; $i >= 0; $i--) {
-                $start = date('Y-m-d', strtotime("-".($i*7 + 6)." days"));
-                $end = date('Y-m-d', strtotime("-".($i*7)." days"));
+                $weeksAgo = $i + $offsetWeeks;
+                $start = date('Y-m-d', strtotime("-".($weeksAgo*7 + 6)." days"));
+                $end = date('Y-m-d', strtotime("-".($weeksAgo*7)." days"));
                 $chartLabels[] = date('d M', strtotime($start)) . ' - ' . date('d M', strtotime($end));
                 $chartMasuk[] = (float) DB::table('barang_masuk')->whereBetween('tgl_masuk', [$start, $end])->sum('jml_masuk');
                 $chartKeluar[] = (float) DB::table('barang_keluar')->whereBetween('tgl_keluar', [$start, $end])->sum('jumlah_keluar');
@@ -70,20 +81,22 @@ class DashboardController extends Controller
         } else {
             if ($filter === 'quarter') {
                 $months = 3;
-                $chartTitle = "3 Bulan Terakhir";
+                $chartTitle = "3 Bulan ($periodLabel)";
             } elseif ($filter === 'tahunan') {
                 $months = 12;
-                $chartTitle = "1 Tahun Terakhir";
+                $chartTitle = "1 Tahun ($periodLabel)";
             } else {
                 $months = 6;
-                $chartTitle = "6 Bulan Terakhir";
+                $chartTitle = "6 Bulan ($periodLabel)";
                 $filter = '6_bulan';
             }
 
-            $startDate = date('Y-m-01', strtotime("-".($months-1)." months"));
+            $offsetMonths = $offset * $months;
+            $startDate = date('Y-m-01', strtotime("-".($months - 1 + $offsetMonths)." months"));
+            $endDate = date('Y-m-t',  strtotime("-".($offsetMonths)." months"));
             
             $masukData = DB::table('barang_masuk')
-                ->where('tgl_masuk', '>=', $startDate)
+                ->whereBetween('tgl_masuk', [$startDate, $endDate])
                 ->selectRaw('YEAR(tgl_masuk) as year, MONTH(tgl_masuk) as month, SUM(jml_masuk) as total')
                 ->groupBy('year', 'month')
                 ->get()
@@ -92,7 +105,7 @@ class DashboardController extends Controller
                 });
 
             $keluarData = DB::table('barang_keluar')
-                ->where('tgl_keluar', '>=', $startDate)
+                ->whereBetween('tgl_keluar', [$startDate, $endDate])
                 ->selectRaw('YEAR(tgl_keluar) as year, MONTH(tgl_keluar) as month, SUM(jumlah_keluar) as total')
                 ->groupBy('year', 'month')
                 ->get()
@@ -101,10 +114,11 @@ class DashboardController extends Controller
                 });
 
             for ($i = $months - 1; $i >= 0; $i--) {
-                $month = date('m', strtotime("-$i months"));
-                $year = date('Y', strtotime("-$i months"));
+                $m_ago = $i + $offsetMonths;
+                $month = date('m', strtotime("-$m_ago months"));
+                $year = date('Y', strtotime("-$m_ago months"));
                 $key = "$year-$month";
-                $label = date('M Y', strtotime("-$i months"));
+                $label = date('M Y', strtotime("-$m_ago months"));
                 
                 $chartLabels[] = $label;
                 $chartMasuk[] = (float) ($masukData->get($key)->total ?? 0);

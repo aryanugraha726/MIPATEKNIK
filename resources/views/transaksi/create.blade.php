@@ -42,10 +42,17 @@
             <div class="grid grid-cols-1 gap-6">
                 <div>
                     <label class="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide">Jenis Transaksi <span class="text-red-500">*</span></label>
-                    <select name="jenis_transaksi" id="jenis_transaksi" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50" required onchange="toggleFormMode()">
-                        <option value="masuk">Barang Masuk</option>
-                        <option value="keluar">Barang Keluar</option>
-                    </select>
+                    <div class="relative flex w-full bg-gray-200 rounded-lg p-1">
+                        <div class="absolute left-1 top-1 bottom-1 w-[calc(50%-4px)] bg-white rounded-md shadow transition-transform duration-300 ease-in-out" id="switch-bg"></div>
+                        <label class="flex-1 text-center py-3 cursor-pointer z-10 relative">
+                            <input type="radio" name="jenis_transaksi" value="masuk" class="hidden" onchange="updateSwitch(this)" checked>
+                            <span class="font-semibold text-sm transition-colors text-blue-600" id="label-masuk">Barang Masuk</span>
+                        </label>
+                        <label class="flex-1 text-center py-3 cursor-pointer z-10 relative">
+                            <input type="radio" name="jenis_transaksi" value="keluar" class="hidden" onchange="updateSwitch(this)">
+                            <span class="font-semibold text-sm transition-colors text-gray-500" id="label-keluar">Barang Keluar</span>
+                        </label>
+                    </div>
                 </div>
 
                 <!-- SECTION BARANG MASUK (PO) -->
@@ -85,70 +92,8 @@
                 </div>
 
                 <div id="section_keluar" style="display: none;">
-                    <div class="mb-6 flex gap-4 border-b pb-4 flex-wrap">
-                        <label class="flex items-center cursor-pointer">
-                            <input type="radio" name="sumber_keluar" value="manual" class="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300" checked onchange="toggleSumberKeluar()">
-                            <span class="text-sm font-semibold uppercase tracking-wide text-gray-700">Project / Manual</span>
-                        </label>
-                        <label class="flex items-center cursor-pointer">
-                            <input type="radio" name="sumber_keluar" value="internal" class="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300" onchange="toggleSumberKeluar()">
-                            <span class="text-sm font-semibold uppercase tracking-wide text-gray-700">Internal</span>
-                        </label>
-                        <label class="flex items-center cursor-pointer">
-                            <input type="radio" name="sumber_keluar" value="stok" class="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300" onchange="toggleSumberKeluar()">
-                            <span class="text-sm font-semibold uppercase tracking-wide text-gray-700">Stok</span>
-                        </label>
-                        <label class="flex items-center cursor-pointer">
-                            <input type="radio" name="sumber_keluar" value="mr" class="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300" onchange="toggleSumberKeluar()">
-                            <span class="text-sm font-semibold uppercase tracking-wide text-gray-700">Dari Nota MR</span>
-                        </label>
-                    </div>
-
-                    <!-- KELUAR MANUAL -->
-                    <div id="keluar_manual">
-                        <div class="mb-6">
-                            <div class="flex justify-between items-center mb-2">
-                                <label class="block text-gray-700 font-semibold text-sm uppercase tracking-wide">Pilih Barang <span class="text-red-500">*</span></label>
-                            </div>
-                            <select name="id_barang" id="id_barang" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50" onchange="updateHarga()">
-                                <option value="" disabled selected data-harga="0">-- Ketik / Pilih Barang --</option>
-                                @foreach($barangs as $brg)
-                                    <option value="{{ $brg->id_barang }}" data-harga="{{ $brg->harga }}">{{ $brg->id_barang }} - {{ $brg->nama_barang }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div id="harga_container" class="bg-yellow-50 p-4 rounded-lg border border-yellow-100 mb-6" style="display:none;">
-                            <label class="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide">Harga Satuan (Rp) <span class="text-red-500">*</span></label>
-                            <input type="number" name="harga_masuk" id="harga_masuk" min="0" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 bg-white" oninput="checkHarga()">
-                            <p id="harga_warning" class="text-xs text-yellow-700 mt-2 hidden font-medium">Harga berbeda dengan master. Barang ini akan masuk antrean FIFO otomatis (jika stok aktif masih ada).</p>
-                            <input type="hidden" id="harga_master">
-                        </div>
-
-                        <div id="project_container" class="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-6">
-                            <label class="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide">Tujuan Project <span class="text-red-500">*</span></label>
-                            <select name="job_id" id="job_id" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                                <option value="" disabled selected>-- Pilih Project Tujuan --</option>
-                                @foreach($projects as $proj)
-                                    <option value="{{ $proj->job_id }}">{{ $proj->job_id }} - {{ $proj->nama_project }}</option>
-                                @endforeach
-                            </select>
-                            <p class="text-xs text-blue-600 mt-2">Wajib diisi jika barang dikeluarkan untuk kebutuhan project.</p>
-                        </div>
-
-                        <div class="mb-6">
-                            <label class="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide">Jumlah Barang <span class="text-red-500">*</span></label>
-                            <input type="number" name="jumlah" id="jumlah" min="1" placeholder="Misal: 10" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
-                        </div>
-
-                        <div class="mb-6">
-                            <label class="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide">Keterangan (Opsional)</label>
-                            <input type="text" name="keterangan" id="keterangan" maxlength="30" placeholder="Catatan tambahan (Maks 30 karakter)..." class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
-                        </div>
-                    </div>
-
                     <!-- KELUAR MR -->
-                    <div id="keluar_mr" style="display: none;">
+                    <div id="keluar_mr">
                         <div class="bg-indigo-50 border border-indigo-100 p-6 rounded-lg mb-6">
                             <label class="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide">Pilih Nota Material Request <span class="text-red-500">*</span></label>
                             <select name="no_nota" id="no_nota" class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" onchange="fetchMrDetails()">
@@ -201,8 +146,27 @@
 
 
 <script>
+    function updateSwitch(radio) {
+        const bg = document.getElementById('switch-bg');
+        const labelMasuk = document.getElementById('label-masuk');
+        const labelKeluar = document.getElementById('label-keluar');
+        
+        if (radio.value === 'keluar') {
+            bg.style.transform = 'translateX(100%)';
+            labelMasuk.classList.replace('text-blue-600', 'text-gray-500');
+            labelKeluar.classList.replace('text-gray-500', 'text-blue-600');
+        } else {
+            bg.style.transform = 'translateX(0)';
+            labelMasuk.classList.replace('text-gray-500', 'text-blue-600');
+            labelKeluar.classList.replace('text-blue-600', 'text-gray-500');
+        }
+        
+        toggleFormMode();
+    }
+
     function toggleFormMode() {
-        const jenis = document.getElementById('jenis_transaksi').value;
+        const jenisElement = document.querySelector('input[name="jenis_transaksi"]:checked');
+        const jenis = jenisElement ? jenisElement.value : 'masuk';
         const sectionMasuk = document.getElementById('section_masuk');
         const sectionKeluar = document.getElementById('section_keluar');
         const noPo = document.getElementById('no_po');
@@ -227,7 +191,13 @@
             noPo.disabled = true;
             if (noPo.tomselect) noPo.tomselect.disable();
             
-            toggleSumberKeluar();
+            const inputs = sectionKeluar.querySelectorAll('input, select');
+            inputs.forEach(el => {
+                el.disabled = false;
+                if (el.tomselect) el.tomselect.enable();
+            });
+            
+            document.getElementById('no_nota').required = true;
             document.getElementById('tanggal').required = true;
         }
     }
@@ -315,17 +285,29 @@
                     if (item.is_unlisted) {
                         checkboxHtml = `<input type="checkbox" disabled class="h-5 w-5 text-gray-400 border-gray-300 rounded cursor-not-allowed">`;
                         qtyInputHtml = `<span class="text-xs text-red-500 font-semibold">Unlisted</span>`;
+                    } else if (item.is_fulfilled) {
+                        checkboxHtml = `<input type="checkbox" disabled checked class="h-5 w-5 text-gray-400 border-gray-300 rounded cursor-not-allowed">`;
+                        qtyInputHtml = `<span class="text-xs text-green-600 font-semibold">Sudah Terpenuhi</span>`;
+                    } else if (item.is_out_of_stock) {
+                        checkboxHtml = `<input type="checkbox" disabled class="h-5 w-5 text-gray-400 border-gray-300 rounded cursor-not-allowed">`;
+                        qtyInputHtml = `<span class="text-xs text-red-600 font-semibold">Stok Habis (0)</span>`;
                     } else {
                         checkboxHtml = `<input type="checkbox" name="items_mr[]" value="${item.id_barang}" class="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer" onchange="toggleQtyInput(this, '${item.id_barang}')">`;
-                        qtyInputHtml = `<input type="number" name="qty_mr[${item.id_barang}]" id="qty_mr_${item.id_barang}" min="1" max="${item.qty_req}" value="${item.qty_req}" class="w-full border border-gray-300 p-2 rounded-lg text-sm bg-gray-100" disabled>`;
+                        qtyInputHtml = `<input type="number" name="qty_mr[${item.id_barang}]" id="qty_mr_${item.id_barang}" min="1" max="${item.max_issue}" value="${item.max_issue}" class="w-full border border-gray-300 p-2 rounded-lg text-sm bg-gray-100" disabled>`;
                     }
 
-                    tr.className = 'hover:bg-blue-50';
+                    let stockInfo = '';
+                    if (!item.is_unlisted) {
+                        stockInfo = `<div class="text-xs ${item.sisa_stock > 0 ? 'text-green-600' : 'text-red-500'} font-medium mt-1">Sisa Stok: ${item.sisa_stock} ${item.satuan}</div>`;
+                    }
+
+                    tr.className = item.is_fulfilled || item.is_out_of_stock ? 'bg-gray-50' : 'hover:bg-blue-50';
                     tr.innerHTML = `
                         <td class="p-3 text-center">${checkboxHtml}</td>
                         <td class="p-3">
                             <div class="font-medium text-gray-900">${item.nama_barang}</div>
                             <div class="text-xs text-gray-500">${item.is_unlisted ? 'Belum terdaftar' : item.id_barang}</div>
+                            ${stockInfo}
                         </td>
                         <td class="p-3 text-center font-bold">${item.qty_req} ${item.satuan}</td>
                         <td class="p-3 text-center">${qtyInputHtml}</td>
@@ -353,118 +335,9 @@
         }
     }
 
-    function toggleSumberKeluar() {
-        const sumber = document.querySelector('input[name="sumber_keluar"]:checked').value;
-        const keluarManual = document.getElementById('keluar_manual');
-        const keluarMr = document.getElementById('keluar_mr');
-        
-        const manualInputs = keluarManual.querySelectorAll('input, select');
-        const mrInputs = keluarMr.querySelectorAll('input, select');
-        
-        if (sumber === 'manual' || sumber === 'internal' || sumber === 'stok') {
-            keluarManual.style.display = 'block';
-            keluarMr.style.display = 'none';
-            
-            manualInputs.forEach(el => {
-                el.disabled = false;
-                if (el.tomselect) el.tomselect.enable();
-            });
-            mrInputs.forEach(el => {
-                el.disabled = true;
-                if (el.tomselect) el.tomselect.disable();
-            });
-            
-            document.getElementById('id_barang').required = true;
-            document.getElementById('jumlah').required = true;
-            
-            // Set default keterangan for Internal and Stok
-            const ketInput = document.getElementById('keterangan');
-            if (sumber === 'internal') ketInput.value = 'Penggunaan Internal';
-            else if (sumber === 'stok') ketInput.value = 'Penyesuaian Stok';
-            else if (ketInput.value === 'Penggunaan Internal' || ketInput.value === 'Penyesuaian Stok') ketInput.value = '';
-            
-            toggleProject();
-        } else {
-            keluarManual.style.display = 'none';
-            keluarMr.style.display = 'block';
-            
-            manualInputs.forEach(el => {
-                el.required = false;
-                el.disabled = true;
-                if (el.tomselect) el.tomselect.disable();
-            });
-            mrInputs.forEach(el => {
-                el.disabled = false;
-                if (el.tomselect) el.tomselect.enable();
-            });
-            
-            document.getElementById('no_nota').required = true;
-        }
-    }
-    function toggleProject() {
-        var jenis = document.getElementById('jenis_transaksi').value;
-        var projectContainer = document.getElementById('project_container');
-        var projectInput = document.getElementById('job_id');
-        var hargaContainer = document.getElementById('harga_container');
-        var hargaInput = document.getElementById('harga_masuk');
-
-        if (jenis === 'keluar') {
-            const sumberEl = document.querySelector('input[name="sumber_keluar"]:checked');
-            const sumber = sumberEl ? sumberEl.value : 'manual';
-            
-            if (sumber === 'internal' || sumber === 'stok' || sumber === 'mr') {
-                projectContainer.style.display = 'none';
-                projectInput.removeAttribute('required');
-                projectInput.value = '';
-            } else {
-                projectContainer.style.display = 'block';
-                projectInput.setAttribute('required', 'required');
-            }
-            
-            hargaContainer.style.display = 'none';
-            hargaInput.removeAttribute('required');
-        } else {
-            projectContainer.style.display = 'none';
-            projectInput.removeAttribute('required');
-            projectInput.value = '';
-
-            hargaContainer.style.display = 'block';
-            hargaInput.setAttribute('required', 'required');
-        }
-    }
-
-    function updateHarga() {
-        var select = document.getElementById('id_barang');
-        var selectedOption = select.options[select.selectedIndex];
-        var harga = selectedOption.getAttribute('data-harga');
-        
-        document.getElementById('harga_master').value = harga;
-        document.getElementById('harga_masuk').value = harga;
-        
-        checkHarga(); // Cek di awal jika form edit (meskipun ini form create)
-    }
-
     document.addEventListener("DOMContentLoaded", () => {
         toggleFormMode();
     });
-
-    function checkHarga() {
-        var hargaMaster = document.getElementById('harga_master').value;
-        var hargaMasuk = document.getElementById('harga_masuk').value;
-        var warning = document.getElementById('harga_warning');
-        var jenis = document.getElementById('jenis_transaksi').value;
-
-        if (jenis === 'masuk' && hargaMasuk !== '' && hargaMaster !== '' && hargaMasuk !== hargaMaster) {
-            warning.classList.remove('hidden');
-        } else {
-            warning.classList.add('hidden');
-        }
-    }
-
-    // Run on load to set initial state
-    window.onload = function() {
-        toggleProject();
-    };
 
 
 </script>

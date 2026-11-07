@@ -43,7 +43,11 @@
                     @if($req->status == 'PENDING_MANAGER')
                         <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full font-semibold">Pending Approval</span>
                     @elseif($req->status == 'APPROVED_MANAGER')
-                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-semibold">Approved (Proses PO)</span>
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-semibold">Approved (Bisa Dikeluarkan)</span>
+                    @elseif($req->status == 'PENDING_STOCK')
+                        <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full font-semibold">Menunggu Stok</span>
+                    @elseif($req->status == 'SELESAI')
+                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-semibold">Selesai</span>
                     @elseif($req->status == 'REJECTED_MANAGER')
                         <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-semibold">Rejected</span>
                     @else

@@ -57,13 +57,30 @@ class TransactionController extends Controller
             return response()->json(['error' => 'Permintaan Barang tidak ditemukan'], 404);
         }
 
-        $items = $mr->details->map(function($detail) {
+        $items = $mr->details->map(function($detail) use ($mr) {
+            $totalKeluar = \App\Models\BarangKeluar::where('ket_keluar', 'MR: ' . $mr->no_nota)
+                                ->where('id_barang', $detail->id_barang)
+                                ->sum('jumlah_keluar');
+            $remainingQty = max(0, $detail->req_qty - $totalKeluar);
+            
+            $sisaStock = 0;
+            if ($detail->id_barang) {
+                $stockAktual = \App\Models\StockAktual::where('id_barang', $detail->id_barang)->first();
+                $sisaStock = $stockAktual ? $stockAktual->sisa_stock : 0;
+            }
+            
+            $maxIssue = min($remainingQty, $sisaStock);
+
             return [
                 'id_barang' => $detail->id_barang,
                 'nama_barang' => $detail->id_barang ? ($detail->barang ? $detail->barang->nama_barang : '-') : $detail->nama_barang_baru,
-                'qty_req' => $detail->req_qty,
+                'qty_req' => $remainingQty,
+                'sisa_stock' => $sisaStock,
+                'max_issue' => $maxIssue,
                 'satuan' => $detail->id_barang && $detail->barang && $detail->barang->satuan ? $detail->barang->satuan->nama_satuan : ($detail->satuan_baru ?? '-'),
-                'is_unlisted' => is_null($detail->id_barang)
+                'is_unlisted' => is_null($detail->id_barang),
+                'is_fulfilled' => $remainingQty <= 0 && !is_null($detail->id_barang),
+                'is_out_of_stock' => $maxIssue <= 0 && $remainingQty > 0 && !is_null($detail->id_barang)
             ];
         });
 
@@ -118,6 +135,33 @@ class TransactionController extends Controller
                     $po->update(['status' => 'SELESAI']);
                 }
 
+                // Revert PENDING_STOCK MRs if their items arrived
+                $receivedItemIds = array_unique($request->items);
+                $pendingMrs = \App\Models\MaterialRequest::where('status', 'PENDING_STOCK')->get();
+                foreach ($pendingMrs as $pmr) {
+                    $pmrDetails = \App\Models\MaterialRequestDetail::where('no_nota', $pmr->no_nota)->whereIn('id_barang', $receivedItemIds)->get();
+                    if ($pmrDetails->count() > 0) {
+                        $canFulfillSomething = false;
+                        foreach ($pmrDetails as $detail) {
+                            $totalKeluar = \App\Models\BarangKeluar::where('ket_keluar', 'MR: ' . $pmr->no_nota)
+                                            ->where('id_barang', $detail->id_barang)
+                                            ->sum('jumlah_keluar');
+                            $remainingQty = max(0, $detail->req_qty - $totalKeluar);
+                            if ($remainingQty > 0) {
+                                $stockAktual = \App\Models\StockAktual::where('id_barang', $detail->id_barang)->first();
+                                $sisaStock = $stockAktual ? $stockAktual->sisa_stock : 0;
+                                if ($sisaStock > 0) {
+                                    $canFulfillSomething = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if ($canFulfillSomething) {
+                            $pmr->update(['status' => 'APPROVED_MANAGER']);
+                        }
+                    }
+                }
+
                 DB::commit();
                 return redirect()->route('stock.index')->with('success', 'Transaksi penerimaan barang dari PO berhasil.');
             } catch (\Exception $e) {
@@ -127,7 +171,6 @@ class TransactionController extends Controller
             }
 
         } else {
-            if ($request->sumber_keluar == 'mr') {
                 $request->validate([
                     'no_nota' => 'required|exists:material_request,no_nota',
                     'tanggal' => 'required|date',
@@ -179,74 +222,56 @@ class TransactionController extends Controller
                             }
                         }
                     }
+
+                    // Check if MR is completely fulfilled
+                    $isComplete = true;
+                    $mrDetails = \App\Models\MaterialRequestDetail::where('no_nota', $mr->no_nota)->whereNotNull('id_barang')->get();
+                    if ($mrDetails->count() > 0) {
+                        foreach ($mrDetails as $detail) {
+                            $totalKeluar = \App\Models\BarangKeluar::where('ket_keluar', 'MR: ' . $mr->no_nota)
+                                            ->where('id_barang', $detail->id_barang)
+                                            ->sum('jumlah_keluar');
+                            if ($totalKeluar < $detail->req_qty) {
+                                $isComplete = false;
+                                break;
+                            }
+                        }
+                    } else {
+                        $isComplete = false;
+                    }
+                    
+                    if ($isComplete) {
+                        $mr->update(['status' => 'SELESAI']);
+                    } else {
+                        $isPendingStock = false;
+                        foreach ($mrDetails as $detail) {
+                            $totalKeluar = \App\Models\BarangKeluar::where('ket_keluar', 'MR: ' . $mr->no_nota)
+                                            ->where('id_barang', $detail->id_barang)
+                                            ->sum('jumlah_keluar');
+                            $remainingQty = max(0, $detail->req_qty - $totalKeluar);
+                            if ($remainingQty > 0) {
+                                $stockAktual = \App\Models\StockAktual::where('id_barang', $detail->id_barang)->first();
+                                $sisaStock = $stockAktual ? $stockAktual->sisa_stock : 0;
+                                if ($sisaStock < $remainingQty) {
+                                    $isPendingStock = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if ($isPendingStock) {
+                            $mr->update(['status' => 'PENDING_STOCK']);
+                        } else {
+                            $mr->update(['status' => 'APPROVED_MANAGER']);
+                        }
+                    }
+
                     DB::commit();
                     return redirect()->route('stock.index')->with('success', 'Transaksi barang keluar dari Permintaan Barang berhasil disimpan! Stok telah terupdate.');
                 } catch (\Exception $e) {
                     DB::rollBack();
                     return redirect()->back()->withInput()->withErrors(['jumlah' => $e->getMessage()]);
                 }
-            } else {
-                $request->validate([
-                    'jenis_transaksi' => 'required|in:masuk,keluar',
-                    'id_barang' => 'required|exists:barang,id_barang',
-                    'tanggal' => 'required|date',
-                    'jumlah' => 'required|integer|min:1',
-                    'keterangan' => 'nullable|string|max:30',
-                    'job_id' => 'nullable|exists:project,job_id'
-                ]);
 
-                $barang = Barang::findOrFail($request->id_barang);
-                $stockAktual = StockAktual::where('id_barang', $request->id_barang)->first();
-                
-                // Opsi 1: Validasi Hard Limit
-                // Mengecek apakah stok mencukupi
-                $sisaStock = $stockAktual ? $stockAktual->sisa_stock : 0;
-                if ($request->jumlah > $sisaStock) {
-                    return redirect()->back()->withInput()->withErrors(['jumlah' => "Jumlah barang keluar melebihi stok yang tersedia (Sisa Stok: $sisaStock)."]);
-                }
-                
-                $newId = BarangKeluar::max('id_keluar') + 1;
-
-                BarangKeluar::create([
-                    'id_keluar'     => $newId ?: 1,
-                    'id_barang'     => $request->id_barang,
-                    'tgl_keluar'    => $request->tanggal,
-                    'job_id'    => $request->job_id,
-                    'jumlah_keluar' => $request->jumlah,
-                    'ket_keluar'    => $request->keterangan,
-                ]);
-
-                // Auto-Activate Logic
-                // Fetch updated active stock
-                $updatedStockAktual = StockAktual::where('id_barang', $request->id_barang)->first();
-                $newActiveStock = $updatedStockAktual ? $updatedStockAktual->sisa_stock : 0;
-
-                // Loop while active stock <= 0 to activate queues
-                while ($newActiveStock <= 0) {
-                    $oldestPending = BarangMasuk::where('id_barang', $request->id_barang)
-                                                ->where('status', 'PENDING')
-                                                ->orderBy('tgl_masuk', 'asc')
-                                                ->orderBy('id_masuk', 'asc')
-                                                ->first();
-                    
-                    if ($oldestPending) {
-                        // Activate this batch
-                        $oldestPending->update(['status' => 'ACTIVE']);
-                        
-                        // Update master price
-                        $barang->update(['harga' => $oldestPending->harga_masuk]);
-                        
-                        // Recheck stock
-                        $updatedStockAktual = StockAktual::where('id_barang', $request->id_barang)->first();
-                        $newActiveStock = $updatedStockAktual ? $updatedStockAktual->sisa_stock : 0;
-                    } else {
-                        // No more pending items
-                        break;
-                    }
-                }
-
-                return redirect()->route('stock.index')->with('success', 'Transaksi barang keluar berhasil disimpan! Stok telah terupdate.');
-            }
         }
     }
     // Menampilkan Riwayat Barang Masuk

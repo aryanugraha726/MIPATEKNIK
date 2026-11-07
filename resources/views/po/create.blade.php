@@ -443,6 +443,21 @@
     });
 
     // Initial render
+    @if(isset($prefill) && $prefill['id_barang'])
+        const prefillSel = document.getElementById('sel_barang');
+        for(let i = 0; i < prefillSel.options.length; i++) {
+            if(prefillSel.options[i].value == '{{ $prefill["id_barang"] }}') {
+                items.push({
+                    id: prefillSel.options[i].value,
+                    name: prefillSel.options[i].getAttribute('data-name'),
+                    price: parseFloat(prefillSel.options[i].getAttribute('data-price') || 0),
+                    satuan: prefillSel.options[i].getAttribute('data-satuan'),
+                    qty: parseInt('{{ $prefill["qty"] ?? 1 }}')
+                });
+                break;
+            }
+        }
+    @endif
     renderTable();
 
     // --- Modal & AJAX Logic ---

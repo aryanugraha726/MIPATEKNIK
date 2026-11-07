@@ -20,6 +20,7 @@ use App\Http\Controllers\MaterialRequestController;
 use App\Http\Controllers\ManagerApprovalController;
 use App\Http\Controllers\ShippingAddressController;
 use App\Http\Controllers\POController;
+use App\Http\Controllers\PurchaseNeedsController;
 use App\Http\Controllers\WorkOrderReleaseController;
 use Illuminate\Support\Facades\Route;
 
@@ -59,7 +60,22 @@ Route::middleware(['auth'])->group(function () {
     // Stock opname, transaksi masuk/keluar, riwayat
     // =============================================
     Route::middleware('role:ADMIN,PURCHASING')->group(function () {
+        // Master Data Barang
+        Route::get('/master-data', [MasterDataController::class, 'index'])->name('master.index');
+        Route::resource('kategori', KategoriBarangController::class)->except(['index', 'create', 'show']);
+        Route::resource('satuan', SatuanController::class)->except(['index', 'create', 'show']);
         Route::resource('barang', App\Http\Controllers\BarangController::class)->except(['show']);
+
+        // Vendors and POs
+        Route::resource('vendors', VendorController::class);
+        Route::resource('shipping-addresses', ShippingAddressController::class);
+        
+        // Purchase Needs
+        Route::get('/purchase-needs', [PurchaseNeedsController::class, 'index'])->name('po.needs');
+
+        Route::resource('po', POController::class);
+        Route::post('/po/{no_po}/approve', [POController::class, 'approve'])->name('po.approve');
+        
         Route::get('/stok', [StockController::class, 'index'])->name('stock.index');
         Route::get('/stok/export', [StockController::class, 'export'])->name('stock.export');
         Route::get('/barang/next-id/{id_kategori}', [App\Http\Controllers\BarangController::class, 'getNextId'])->name('barang.nextId');

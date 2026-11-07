@@ -94,8 +94,11 @@
                     <a href="{{ route('material-requests.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('material-requests.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
                         <span class="font-medium text-sm pl-2">Material Request</span>
                     </a>
-                    <a href="{{ route('po.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('po.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                    <a href="{{ route('po.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('po.*') && !request()->routeIs('po.needs') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
                         <span class="font-medium text-sm pl-2">Purchase Order</span>
+                    </a>
+                    <a href="{{ route('po.needs') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('po.needs') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <span class="font-medium text-sm pl-2">Kebutuhan Pembelian</span>
                     </a>
                     <a href="{{ route('shipping-address.index') }}" class="flex items-center px-4 py-2 rounded-lg transition-colors {{ request()->routeIs('shipping-address.*') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
                         <span class="font-medium text-sm pl-2">Alamat Pengiriman</span>
