@@ -1,0 +1,42 @@
+[package]
+name = "aryanugraha726/mipa-teknik"
+version = "0.1.0"
+description = "Laravel Application running on Wasmer Edge"
+entrypoint = "web"
+
+[dependencies]
+# Upgraded to 8.3.400+ which bundles pdo_pgsql, pdo_mysql, gd, mbstring, curl, etc.
+"php/php" = "=8.3.400"
+
+[fs]
+"/app" = "."
+
+[[command]]
+name = "web"
+module = "php/php:php"
+runner = "wasi"
+
+[command.annotations.wasi]
+main-args = ["-S", "0.0.0.0:8080", "-t", "/app/public", "/app/router.php"]
+env = [
+    "APP_ENV=production",
+    "APP_DEBUG=false",
+    "APP_KEY=base64:ADSMKzv+G+gTfuGeAAWr9YpJgKoR2tOOVHSPi06/+6A=",
+    "APP_URL=https://aryanugraha726-mipa-teknik.wasmer.app",
+    "DB_CONNECTION=pgsql",
+    "DB_HOST=aws-0-ap-northeast-1.pooler.supabase.com",
+    "DB_PORT=5432",
+    "DB_DATABASE=postgres",
+    "DB_USERNAME=postgres.tdrddtuiterdtqlvfggi",
+    "DB_PASSWORD=qtSd7?Rx%*3Y9y5",
+    "DB_SSLMODE=require",
+    "SESSION_DRIVER=cookie",
+    "SESSION_LIFETIME=120",
+    "SESSION_ENCRYPT=false",
+    "SESSION_PATH=/",
+    "CACHE_STORE=file",
+    "QUEUE_CONNECTION=sync",
+    "FILESYSTEM_DISK=local",
+    "LOG_CHANNEL=stderr",
+    "LOG_LEVEL=error"
+]

@@ -11,7 +11,7 @@
         "doctrine/dbal": "^4.4",
         "laravel/framework": "^13.8",
         "laravel/tinker": "^3.0",
-        "openspout/openspout": "^5.7"
+        "openspout/openspout": "^4.28"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -79,6 +79,10 @@
         }
     },
     "config": {
+        "platform-check": false,
+        "platform": {
+            "php": "8.3.4"
+        },
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,

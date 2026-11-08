@@ -1,0 +1,1 @@
+﻿<?php require 'vendor/autoload.php'; \ = require_once 'bootstrap/app.php'; \->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap(); \ = App\Models\MaterialRequest::whereHas('karyawan.divisi', function(\) { \->whereIn('divisi.id_divisi', [1]); })->get(); echo 'OK';

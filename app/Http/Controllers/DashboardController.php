@@ -56,8 +56,8 @@ class DashboardController extends Controller
             $startDate = date('Y-m-d', strtotime('-' . (6 + $offsetDays) . ' days'));
             $endDate = date('Y-m-d', strtotime('-' . $offsetDays . ' days'));
             
-            $masukData = DB::table('barang_masuk')->whereBetween('tgl_masuk', [$startDate, $endDate])->selectRaw('DATE(tgl_masuk) as date, SUM(jml_masuk) as total')->groupBy('date')->pluck('total', 'date');
-            $keluarData = DB::table('barang_keluar')->whereBetween('tgl_keluar', [$startDate, $endDate])->selectRaw('DATE(tgl_keluar) as date, SUM(jumlah_keluar) as total')->groupBy('date')->pluck('total', 'date');
+            $masukData = DB::table('barang_masuk')->whereBetween('tgl_masuk', [$startDate, $endDate])->selectRaw('tgl_masuk::date as date, SUM(jml_masuk) as total')->groupBy('date')->pluck('total', 'date');
+            $keluarData = DB::table('barang_keluar')->whereBetween('tgl_keluar', [$startDate, $endDate])->selectRaw('tgl_keluar::date as date, SUM(jumlah_keluar) as total')->groupBy('date')->pluck('total', 'date');
 
             for ($i = 6; $i >= 0; $i--) {
                 $daysAgo = $i + $offsetDays;
@@ -97,7 +97,7 @@ class DashboardController extends Controller
             
             $masukData = DB::table('barang_masuk')
                 ->whereBetween('tgl_masuk', [$startDate, $endDate])
-                ->selectRaw('YEAR(tgl_masuk) as year, MONTH(tgl_masuk) as month, SUM(jml_masuk) as total')
+                ->selectRaw('EXTRACT(YEAR FROM tgl_masuk)::int as year, EXTRACT(MONTH FROM tgl_masuk)::int as month, SUM(jml_masuk) as total')
                 ->groupBy('year', 'month')
                 ->get()
                 ->keyBy(function($item) {
@@ -106,7 +106,7 @@ class DashboardController extends Controller
 
             $keluarData = DB::table('barang_keluar')
                 ->whereBetween('tgl_keluar', [$startDate, $endDate])
-                ->selectRaw('YEAR(tgl_keluar) as year, MONTH(tgl_keluar) as month, SUM(jumlah_keluar) as total')
+                ->selectRaw('EXTRACT(YEAR FROM tgl_keluar)::int as year, EXTRACT(MONTH FROM tgl_keluar)::int as month, SUM(jumlah_keluar) as total')
                 ->groupBy('year', 'month')
                 ->get()
                 ->keyBy(function($item) {

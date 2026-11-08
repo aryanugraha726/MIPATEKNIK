@@ -59,3 +59,16 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 # MIPATEKNIK
 # MIPATEKNIK
 # MIPATEKNIK
+
+## Docker Deployment
+
+Build the image and run it locally with a production environment file:
+
+```bash
+docker build -t mipa-teknik .
+docker run --rm -p 8080:80 --env-file .env.production mipa-teknik
+```
+
+Set these values in the deployment platform's environment settings (do not commit secrets): `APP_KEY`, `APP_URL`, `APP_ENV=production`, `APP_DEBUG=false`, `DB_CONNECTION=pgsql`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, and `DB_SSLMODE=require`. Use the Supabase session-pooler connection details if the host cannot reach the direct database endpoint. For this container, set `SESSION_DRIVER=file`, `CACHE_STORE=file`, and `QUEUE_CONNECTION=sync` unless the corresponding database tables and workers are configured.
+
+The image includes PHP 8.3 with `pdo_pgsql` and serves Laravel from `public/`. Ensure the Supabase schema has been initialized with migrations that are compatible with PostgreSQL before sending users to the app.
